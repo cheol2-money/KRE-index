@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자본주의 생존일지 — 위기지표 모니터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #040b13;
+  --card: #08131f;
+  --card2: #0c1a2b;
+  --border: #132238;
+  --border2: #1d3452;
+  --text: #cde0f5;
+  --muted: #3f5e7a;
+  --secondary: #6e9abf;
+  --kre: #22d985;
+  --vix: #ff6b35;
+  --yield: #4fa8ff;
+  --move: #c07af6;
+  --btc: #ffb400;
+  --gold: #f5d568;
+  --cp: #00d4c8;
+  --sim: #ff4a4a;
+  --fact: #22d985;
+  --header-h: 64px;
+  --tab-h: 44px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  height: var(--header-h);
+  background: var(--card);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.logo span { color: var(--kre); }
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.badge-fact { background: rgba(34,217,133,0.12); color: var(--fact); border: 1px solid rgba(34,217,133,0.25); }
+.badge-sim  { background: rgba(255,74,74,0.12);  color: var(--sim);  border: 1px solid rgba(255,74,74,0.25); }
+.header-range { color: var(--secondary); font-size: 10px; }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: flex;
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-card {
+  flex: 1;
+  background: var(--card);
+  padding: 14px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-kre::before { background: var(--kre); }
+.stat-vix::before { background: var(--vix); }
+.stat-yield::before { background: var(--yield); }
+.stat-move::before { background: var(--move); }
+.stat-btc::before { background: var(--btc); }
+.stat-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-value {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.stat-delta {
+  font-size: 9px;
+  margin-top: 3px;
+}
+.pos { color: var(--kre); }
+.neg { color: var(--sim); }
+
+/* ── TABS ── */
+.tab-bar {
+  height: var(--tab-h);
+  background: var(--card);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 18px;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab {
+  height: 36px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--kre); }
+.tab-warn { font-size: 8px; padding: 1px 4px; border-radius: 2px; background: rgba(255,74,74,0.15); color: var(--sim); }
+
+/* ── MAIN CONTENT ── */
+main { padding: 20px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── CHART CARDS ── */
+.chart-grid {
+  display: grid;
+  gap: 16px;
+}
+.chart-grid-2 { grid-template-columns: 1fr 1fr; }
+.chart-grid-1 { grid-template-columns: 1fr; }
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 18px;
+  position: relative;
+}
+.chart-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+.chart-subtitle {
+  font-size: 9px;
+  color: var(--secondary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chart-wrap {
+  position: relative;
+}
+
+/* ── PERIOD DIVIDER NOTE ── */
+.period-note {
+  font-size: 9px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: rgba(19,34,56,0.6);
+  border-left: 2px solid var(--border2);
+}
+.period-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-est { background: var(--muted); border: 1px dashed var(--muted); }
+.dot-fact { background: var(--kre); }
+
+/* ── CORRELATION MATRIX ── */
+.corr-wrap {
+  overflow-x: auto;
+}
+.corr-matrix {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+.corr-matrix th {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  padding: 8px 14px;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border2);
+}
+.corr-matrix td {
+  padding: 7px 14px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(19,34,56,0.4);
+}
+.corr-matrix .row-label {
+  text-align: left;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--secondary);
+  padding-right: 20px;
+  white-space: nowrap;
+}
+.corr-na { color: var(--muted) !important; font-size: 9px; }
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: rgba(255,74,74,0.05);
+  border: 1px solid rgba(255,74,74,0.15);
+  border-radius: 3px;
+  font-size: 9px;
+  color: var(--secondary);
+  line-height: 1.7;
+}
+.disclaimer strong { color: var(--sim); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--card); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (max-width: 700px) {
+  .chart-grid-2 { grid-template-columns: 1fr; }
+  .stats-row { flex-wrap: wrap; }
+  .stat-card { min-width: 45%; }
+  header { padding: 0 14px; }
+  main { padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">자본주의 생존일지 <span>// 위기지표 모니터</span></div>
+  <div class="header-meta">
+    <span class="badge badge-fact">● FACT · KRE / VIX / YIELD / MOVE</span>
+    <span class="badge badge-sim">⚠ SIM · BTC / GOLD / CP</span>
+    <span class="header-range">2025.12 → 2026.03.19</span>
+  </div>
+</header>
+
+<!-- STATS ROW -->
+<div class="stats-row">
+  <div class="stat-card stat-kre">
+    <div class="stat-label"><span style="color:var(--kre)">■</span> KRE (지역은행 ETF)</div>
+    <div class="stat-value">$63.19</div>
+    <div class="stat-delta neg">▼ -12.5% from Feb 11 peak ($72.18)</div>
+  </div>
+  <div class="stat-card stat-vix">
+    <div class="stat-label"><span style="color:var(--vix)">■</span> VIX (공포지수)</div>
+    <div class="stat-value">24.06</div>
+    <div class="stat-delta neg">▲ 구간 고점 29.45 (Mar 16)</div>
+  </div>
+  <div class="stat-card stat-yield">
+    <div class="stat-label"><span style="color:var(--yield)">■</span> US 10Y 국채금리</div>
+    <div class="stat-value">4.26%</div>
+    <div class="stat-delta pos">구간 내 횡보 (3.97~4.32%)</div>
+  </div>
+  <div class="stat-card stat-move">
+    <div class="stat-label"><span style="color:var(--move)">■</span> MOVE (채권 변동성)</div>
+    <div class="stat-value">81.25</div>
+    <div class="stat-delta neg">▲ 구간 고점 112.40 → 재반등 98.15</div>
+  </div>
+  <div class="stat-card stat-btc">
+    <div class="stat-label"><span style="color:var(--btc)">■</span> BTC <span class="badge badge-sim" style="font-size:8px;padding:1px 4px">SIM</span></div>
+    <div class="stat-value">$72,000</div>
+    <div class="stat-delta pos">시뮬레이션 범위: $55,800~$74,830</div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="yield">Yield &amp; MOVE</div>
+  <div class="tab" data-tab="crypto">BTC &amp; Gold <span class="tab-warn">SIM</span></div>
+  <div class="tab" data-tab="premium">Coinbase Premium <span class="tab-warn">SIM</span></div>
+  <div class="tab" data-tab="corr">Correlation Matrix</div>
+</div>
+
+<main>
+
+<!-- ── TAB 1: OVERVIEW ── -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="chart-grid chart-grid-1">
+    <div class="chart-card">
+      <div class="chart-title">KRE vs VIX — 지역은행 ETF & 공포지수</div>
+      <div class="chart-subtitle">
+        KRE (좌축, $) / VIX (우축, pt)
+        <span class="badge badge-fact">FACT</span>
+      </div>
+      <div class="period-note">
+        <span class="period-dot dot-est"></span> 점선: 2025.12~2026.02.10 주간 추정치 (웹 검색 기반 근사값)
+        &nbsp;|&nbsp;
+        <span class="period-dot dot-fact"></span> 실선: 2026.02.11~03.19 제공 데이터 (일별 확정값)
+      </div>
+      <div class="chart-wrap"><canvas id="chartOverview" height="100"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
+    <div class="chart-card">
+      <div class="chart-title">KRE 누적 수익률 (%)</div>
+      <div class="chart-subtitle">2026.02.11 기준 100으로 정규화 <span class="badge badge-fact">FACT</span></div>
+      <div class="chart-wrap"><canvas id="chartKreReturn" height="130"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">VIX 히스토그램 분포</div>
+      <div class="chart-subtitle">2026.02.11~03.19 구간 <span class="badge badge-fact">FACT</span></div>
+      <div class="chart-wrap"><canvas id="chartVixDist" height="130"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB 2: YIELD & MOVE ── -->
+<div class="tab-panel" id="tab-yield">
+  <div class="chart-grid chart-grid-1">
+    <div class="chart-card">
+      <div class="chart-title">US 10Y 국채금리 vs MOVE 지수</div>
+      <div class="chart-subtitle">10Y Yield (좌축, %) / MOVE (우축, pt) <span class="badge badge-fact">FACT</span></div>
+      <div class="period-note">
+        <span class="period-dot dot-est"></span> 점선: 2025.12~2026.02.10 주간 추정치
+        &nbsp;|&nbsp;
+        <span class="period-dot dot-fact"></span> 실선: 2026.02.11~03.19 확정 데이터
+      </div>
+      <div class="chart-wrap"><canvas id="chartYieldMove" height="100"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
+    <div class="chart-card">
+      <div class="chart-title">KRE vs 10Y Yield 산점도</div>
+      <div class="chart-subtitle">금리와 지역은행 주가의 관계 <span class="badge badge-fact">FACT</span></div>
+      <div class="chart-wrap"><canvas id="chartScatterKreYield" height="160"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">VIX vs MOVE 산점도</div>
+      <div class="chart-subtitle">주식 & 채권 변동성 동조화 <span class="badge badge-fact">FACT</span></div>
+      <div class="chart-wrap"><canvas id="chartScatterVixMove" height="160"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB 3: BTC & GOLD ── -->
+<div class="tab-panel" id="tab-crypto">
+  <div class="disclaimer" style="margin-top:0;margin-bottom:16px;">
+    <strong>⚠ SIMULATION DATA</strong> — 아래 BTC 및 Gold 데이터는 2008년형 금융시스템 위기를 가정한 스트레스 테스트 시나리오 시뮬레이션 값입니다. 실제 시장 데이터가 아닙니다.
+  </div>
+  <div class="chart-grid chart-grid-1">
+    <div class="chart-card">
+      <div class="chart-title">BTC vs Gold 가격 추이</div>
+      <div class="chart-subtitle">BTC (좌축, $) / Gold (우축, $) — 2026.02.18 시작 <span class="badge badge-sim">SIMULATION</span></div>
+      <div class="chart-wrap"><canvas id="chartBtcGold" height="100"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
+    <div class="chart-card">
+      <div class="chart-title">BTC vs VIX (시나리오 분석)</div>
+      <div class="chart-subtitle">공포 상승 시 BTC 반응 <span class="badge badge-sim">SIM</span></div>
+      <div class="chart-wrap"><canvas id="chartBtcVix" height="160"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Gold vs KRE (안전자산 vs 위험자산)</div>
+      <div class="chart-subtitle">은행위기 시 금 vs 지역은행 <span class="badge badge-sim">SIM</span></div>
+      <div class="chart-wrap"><canvas id="chartGoldKre" height="160"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB 4: COINBASE PREMIUM ── -->
+<div class="tab-panel" id="tab-premium">
+  <div class="disclaimer" style="margin-top:0;margin-bottom:16px;">
+    <strong>⚠ SIMULATION DATA</strong> — Coinbase Premium (코인베이스 프리미엄)은 시뮬레이션 데이터입니다. 단위 혼재($ / %) 발생 — BTC 가격 기준으로 %로 환산하여 표시합니다.
+  </div>
+  <div class="chart-grid chart-grid-1">
+    <div class="chart-card">
+      <div class="chart-title">Coinbase Premium Index (% 환산)</div>
+      <div class="chart-subtitle">양수 = 미국 투자자 매수우위 / 음수 = 매도우위 (글로벌 대비) <span class="badge badge-sim">SIMULATION</span></div>
+      <div class="chart-wrap"><canvas id="chartCP" height="110"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
+    <div class="chart-card">
+      <div class="chart-title">CP vs BTC 가격</div>
+      <div class="chart-subtitle">프리미엄과 BTC 가격 연동 여부 <span class="badge badge-sim">SIM</span></div>
+      <div class="chart-wrap"><canvas id="chartCpBtc" height="160"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Curve 3Pool USDT % 추이</div>
+      <div class="chart-subtitle">스테이블코인 풀 구성비 (시뮬레이션) <span class="badge badge-sim">SIM</span></div>
+      <div class="chart-wrap"><canvas id="chartCurve" height="160"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB 5: CORRELATION ── -->
+<div class="tab-panel" id="tab-corr">
+  <div class="chart-grid chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-title">상관관계 히트맵 (2026.02.11~03.19)</div>
+      <div class="chart-subtitle">피어슨 상관계수 | FACT 지표 기준 <span class="badge badge-fact">FACT</span></div>
+      <div class="corr-wrap">
+        <table class="corr-matrix" id="corrTable"></table>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">주요 상관관계 분석</div>
+      <div class="chart-subtitle">KRE ↔ VIX / MOVE / Yield / BTC(SIM)</div>
+      <div class="chart-wrap"><canvas id="chartRadar" height="200"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid chart-grid-1" style="margin-top:16px;">
+    <div class="chart-card">
+      <div class="chart-title">지표간 상관관계 해석</div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="corrInsights"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATA
+// ─────────────────────────────────────────────
+
+// Historical estimates (weekly, Dec 2025 ~ Feb 10 2026)
+// Source: Investing.com KRE Dec-Jan avg $66.73 range $64.06-68.67
+//         SPGlobal: VIX spiked above 20 on Jan 20, then ~17
+//         Advisor Perspectives: 10Y end-Dec 2025 = 4.16% weekly avg
+const histDates  = ['25.12.01','25.12.08','25.12.15','25.12.22','25.12.29','26.01.05','26.01.12','26.01.20','26.01.26','26.02.02','26.02.09'];
+const histKRE    = [65.5, 66.2, 67.8, 68.0, 67.5, 66.8, 67.3, 68.5, 70.2, 71.5, 72.0];
+const histVIX    = [14.2, 13.8, 15.5, 16.8, 15.5, 16.2, 16.5, 20.5, 17.8, 17.5, 17.2];
+const histYield  = [4.22, 4.18, 4.32, 4.25, 4.16, 4.20, 4.24, 4.18, 4.15, 4.18, 4.17];
+
+// Provided dataset (daily, Feb 11 ~ Mar 19 2026) ── FACT for KRE/VIX/Yield/MOVE
+const mainDates = ['02.11','02.12','02.13','02.16','02.17','02.18','02.19','02.23','02.24','02.25','02.26','02.27',
+                   '03.02','03.03','03.04','03.05','03.09','03.10','03.11','03.12','03.13','03.16','03.17','03.18','03.19'];
+const mainKRE   = [72.18,71.50,73.05,73.05,71.28,72.04,70.99,68.74,68.67,69.87,70.39,70.38,67.76,67.30,66.52,66.60,64.75,64.72,63.98,62.92,63.11,62.88,63.45,62.62,63.19];
+const mainVIX   = [17.92,17.85,16.52,16.35,18.45,20.15,20.23,21.01,21.06,17.93,17.77,20.16,21.44,23.57,24.12,23.75,24.92,23.60,24.23,25.14,27.19,29.45,22.37,25.09,24.06];
+const mainYield = [4.18,4.18,4.24,4.25,4.25,4.07,4.09,4.08,4.03,4.05,4.05,3.97,4.04,4.10,4.16,4.15,4.13,4.12,4.19,4.29,4.28,4.32,4.20,4.25,4.26];
+const mainMOVE  = [108.50,107.80,112.40,111.80,70.10,68.84,64.18,64.27,68.03,65.27,62.43,63.93,73.38,73.21,75.48,70.03,81.26,79.74,76.33,82.45,95.30,98.15,85.25,79.23,81.25];
+
+// SIM data — BTC & Gold (null where missing)
+const mainBTC  = [null,null,null,null,null,70000,66900,66000,57000,66000,68000,65000,58000,56750,55800,71840,66500,66400,70000,68200,73015,64800,74830,66700,72000];
+const mainGold = [null,null,null,null,null,4990,5002,5228,5153,5150,5153,5252,5342,5087,5112,5115,6000,5300,5100,5120,5100,5450,4997,4880,5400];
+
+// Curve 3Pool USDT %
+const mainCurve = [33.8,34.2,33.2,33.1,33.4,33.8,33.3,33.8,33.8,33.8,33.3,33.3,48.9,33.8,34.1,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3];
+
+// Coinbase Premium raw data — mixed $ and % strings, normalize to %
+const cpRaw = ['+0.02%','-0.062%','+0.015%','+0.008%','-$167.80','-$148.50','-$167.80','-0.0477%','-$167.80','-0.0467%','+0.0525%','+0.0525%',
+               '-$148.50','+$10.18','-$8.45','+$61.00','+0.01%','-0.0049%','-0.0049%','-0.0125%','+$61.00','-$45.20','+$12.50','+$25.40','+$35.40'];
+
+function parseCPNorm(str, btc) {
+  if (!str) return null;
+  str = str.trim();
+  const sign = str.startsWith('-') ? -1 : 1;
+  const clean = str.replace(/[+\-$%]/g,'');
+  const val = parseFloat(clean) * sign;
+  if (str.includes('%')) return val;
+  if (btc && btc > 0) return (val / btc) * 100;
+  return null;
+}
+const mainCP = mainBTC.map((b, i) => parseCPNorm(cpRaw[i], b));
+// For dates with no BTC but % value — re-parse those
+const mainCPFull = cpRaw.map((r, i) => {
+  if (!r) return null;
+  if (r.includes('%')) {
+    const sign = r.startsWith('-') ? -1 : 1;
+    const val = parseFloat(r.replace(/[+\-$%]/g,'')) * sign;
+    return val;
+  }
+  return mainCP[i];
+});
+
+// ─────────────────────────────────────────────
+//  CHART DEFAULTS
+// ─────────────────────────────────────────────
+
+Chart.defaults.color = '#4a6580';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10;
+
+const GRID = { color: 'rgba(26,36,56,0.8)', lineWidth: 0.5 };
+const TICK = { color: '#3f5e7a', font: { size: 9 } };
+
+function baseOptions(y1label, y2label) {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    animation: { duration: 600, easing: 'easeInOutQuart' },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: true, position: 'top', align: 'end',
+        labels: { boxWidth: 8, boxHeight: 8, padding: 14, color: '#6e9abf', font: { size: 9 } }
+      },
+      tooltip: {
+        backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1,
+        titleColor: '#8ab4d8', bodyColor: '#cde0f5',
+        padding: 10, titleFont: { size: 9 }, bodyFont: { size: 10 }
+      }
+    },
+    scales: {
+      x: { grid: GRID, ticks: { ...TICK, maxRotation: 45 } },
+      y: { grid: GRID, ticks: TICK, position: 'left', title: y1label ? { display: true, text: y1label, color: '#3f5e7a', font: { size: 9 } } : undefined },
+      ...(y2label ? { y2: { grid: { display: false }, ticks: TICK, position: 'right', title: { display: true, text: y2label, color: '#3f5e7a', font: { size: 9 } } } } : {})
+    }
+  };
+}
+
+// ─────────────────────────────────────────────
+//  CHART 1 — KRE + VIX OVERVIEW
+// ─────────────────────────────────────────────
+
+const allDatesOv   = [...histDates, ...mainDates];
+const allKRE       = [...histKRE, ...mainKRE];
+const allVIX       = [...histVIX, ...mainVIX];
+const splitIdx     = histDates.length; // index where provided data begins
+
+function makeSegmented(fullArr, splitIdx) {
+  return {
+    estPart:  fullArr.slice(0, splitIdx + 1).map((v, i) => (i < splitIdx ? v : v)),
+    factPart: [null, ...Array(splitIdx - 1).fill(null), fullArr[splitIdx - 1], ...fullArr.slice(splitIdx)]
+  };
+}
+// Actually simpler — just use borderDash for first segment via segment callback
+const kreEst  = allKRE.map((v, i) => i < splitIdx ? v : null);
+const kreFact = allKRE.map((v, i) => i >= splitIdx - 1 ? v : null); // overlap at boundary
+const vixEst  = allVIX.map((v, i) => i < splitIdx ? v : null);
+const vixFact = allVIX.map((v, i) => i >= splitIdx - 1 ? v : null);
+
+const ctxOv = document.getElementById('chartOverview').getContext('2d');
+new Chart(ctxOv, {
+  type: 'line',
+  data: {
+    labels: allDatesOv,
+    datasets: [
+      { label: 'KRE (est.)', data: kreEst, borderColor: 'rgba(34,217,133,0.35)', borderWidth: 1.5, borderDash: [4,3], pointRadius: 2, pointBackgroundColor: 'rgba(34,217,133,0.4)', tension: 0.3, yAxisID: 'y', spanGaps: false },
+      { label: 'KRE', data: kreFact, borderColor: '#22d985', borderWidth: 2.5, pointRadius: 2.5, pointBackgroundColor: '#22d985', tension: 0.2, yAxisID: 'y', spanGaps: false },
+      { label: 'VIX (est.)', data: vixEst, borderColor: 'rgba(255,107,53,0.3)', borderWidth: 1.5, borderDash: [4,3], pointRadius: 2, pointBackgroundColor: 'rgba(255,107,53,0.4)', tension: 0.3, yAxisID: 'y2', spanGaps: false },
+      { label: 'VIX', data: vixFact, borderColor: '#ff6b35', borderWidth: 2, pointRadius: 2.5, pointBackgroundColor: '#ff6b35', tension: 0.2, yAxisID: 'y2', spanGaps: false }
+    ]
+  },
+  options: {
+    ...baseOptions('KRE ($)', 'VIX'),
+    plugins: {
+      ...baseOptions().plugins,
+      annotation: {},
+      tooltip: {
+        backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1,
+        titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10,
+        titleFont: { size: 9 }, bodyFont: { size: 10 }
+      },
+      legend: {
+        display: true, position: 'top', align: 'end',
+        labels: { boxWidth: 8, boxHeight: 8, padding: 12, color: '#6e9abf', font: { size: 9 } }
+      }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 2 — KRE Return (normalized)
+// ─────────────────────────────────────────────
+const base = mainKRE[0];
+const kreRet = mainKRE.map(v => +((v / base - 1) * 100).toFixed(2));
+const kreColors = kreRet.map(v => v >= 0 ? 'rgba(34,217,133,0.7)' : 'rgba(255,74,74,0.7)');
+
+const ctx2 = document.getElementById('chartKreReturn').getContext('2d');
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: mainDates,
+    datasets: [{ label: 'KRE 수익률 (%)', data: kreRet, backgroundColor: kreColors, borderRadius: 2 }]
+  },
+  options: {
+    ...baseOptions('수익률 (%)'),
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
+    },
+    scales: {
+      x: { grid: GRID, ticks: { ...TICK, maxRotation: 60 } },
+      y: { grid: GRID, ticks: TICK }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 3 — VIX Distribution
+// ─────────────────────────────────────────────
+const vixBuckets = { '15-18': 0, '18-21': 0, '21-24': 0, '24-27': 0, '27-30': 0 };
+mainVIX.forEach(v => {
+  if (v < 18) vixBuckets['15-18']++;
+  else if (v < 21) vixBuckets['18-21']++;
+  else if (v < 24) vixBuckets['21-24']++;
+  else if (v < 27) vixBuckets['24-27']++;
+  else vixBuckets['27-30']++;
+});
+const ctx3 = document.getElementById('chartVixDist').getContext('2d');
+new Chart(ctx3, {
+  type: 'bar',
+  data: {
+    labels: Object.keys(vixBuckets),
+    datasets: [{ label: '거래일 수', data: Object.values(vixBuckets), backgroundColor: ['rgba(255,107,53,0.5)','rgba(255,107,53,0.65)','rgba(255,107,53,0.75)','rgba(255,107,53,0.85)','rgba(255,74,74,0.9)'], borderRadius: 3 }]
+  },
+  options: {
+    ...baseOptions('거래일 수'),
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
+    },
+    scales: {
+      x: { grid: GRID, ticks: TICK },
+      y: { grid: GRID, ticks: { ...TICK, stepSize: 1 } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 4 — Yield + MOVE
+// ─────────────────────────────────────────────
+const allDatesYM  = [...histDates, ...mainDates];
+const histMove    = [null,null,null,null,null,null,null,null,null,null,null]; // MOVE not available pre-period
+const allYield    = [...histYield, ...mainYield];
+const allMove     = [...histMove, ...mainMOVE];
+const yieldEst    = allYield.map((v, i) => i < splitIdx ? v : null);
+const yieldFact   = allYield.map((v, i) => i >= splitIdx - 1 ? v : null);
+const moveArr     = allMove;
+
+const ctx4 = document.getElementById('chartYieldMove').getContext('2d');
+new Chart(ctx4, {
+  type: 'line',
+  data: {
+    labels: allDatesYM,
+    datasets: [
+      { label: '10Y Yield % (est.)', data: yieldEst, borderColor: 'rgba(79,168,255,0.35)', borderWidth: 1.5, borderDash: [4,3], pointRadius: 1.5, tension: 0.3, yAxisID: 'y', spanGaps: false },
+      { label: '10Y Yield %', data: yieldFact, borderColor: '#4fa8ff', borderWidth: 2.5, pointRadius: 2.5, pointBackgroundColor: '#4fa8ff', tension: 0.2, yAxisID: 'y', spanGaps: false },
+      { label: 'MOVE Index', data: moveArr, borderColor: '#c07af6', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#c07af6', tension: 0.2, yAxisID: 'y2', spanGaps: true }
+    ]
+  },
+  options: { ...baseOptions('Yield (%)', 'MOVE (pt)') }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 5 — KRE vs Yield scatter
+// ─────────────────────────────────────────────
+const ctx5 = document.getElementById('chartScatterKreYield').getContext('2d');
+const scatterKY = mainKRE.map((kre, i) => ({ x: mainYield[i], y: kre }));
+new Chart(ctx5, {
+  type: 'scatter',
+  data: {
+    datasets: [{ label: 'KRE vs 10Y', data: scatterKY, backgroundColor: 'rgba(34,217,133,0.6)', pointRadius: 5 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
+    scales: {
+      x: { grid: GRID, ticks: TICK, title: { display: true, text: '10Y Yield (%)', color: '#3f5e7a', font: { size: 9 } } },
+      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'KRE ($)', color: '#3f5e7a', font: { size: 9 } } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 6 — VIX vs MOVE scatter
+// ─────────────────────────────────────────────
+const ctx6 = document.getElementById('chartScatterVixMove').getContext('2d');
+const scatterVM = mainVIX.map((v, i) => ({ x: v, y: mainMOVE[i] }));
+new Chart(ctx6, {
+  type: 'scatter',
+  data: {
+    datasets: [{ label: 'VIX vs MOVE', data: scatterVM, backgroundColor: 'rgba(192,122,246,0.6)', pointRadius: 5 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
+    scales: {
+      x: { grid: GRID, ticks: TICK, title: { display: true, text: 'VIX', color: '#3f5e7a', font: { size: 9 } } },
+      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'MOVE', color: '#3f5e7a', font: { size: 9 } } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 7 — BTC + Gold
+// ─────────────────────────────────────────────
+const btcDates = mainDates.filter((_, i) => mainBTC[i] !== null);
+const btcVals  = mainBTC.filter(v => v !== null);
+const goldVals = mainGold.filter(v => v !== null);
+
+const ctx7 = document.getElementById('chartBtcGold').getContext('2d');
+new Chart(ctx7, {
+  type: 'line',
+  data: {
+    labels: btcDates,
+    datasets: [
+      { label: 'BTC ($)', data: btcVals, borderColor: '#ffb400', borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#ffb400', tension: 0.25, yAxisID: 'y', fill: false },
+      { label: 'Gold ($)', data: goldVals, borderColor: '#f5d568', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#f5d568', tension: 0.25, yAxisID: 'y2', fill: false }
+    ]
+  },
+  options: { ...baseOptions('BTC ($)', 'Gold ($)') }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 8 — BTC vs VIX scatter
+// ─────────────────────────────────────────────
+const ctx8 = document.getElementById('chartBtcVix').getContext('2d');
+const btcVixPairs = mainBTC.map((b, i) => b !== null ? { x: mainVIX[i], y: b } : null).filter(v => v);
+new Chart(ctx8, {
+  type: 'scatter',
+  data: { datasets: [{ label: 'BTC vs VIX', data: btcVixPairs, backgroundColor: 'rgba(255,180,0,0.6)', pointRadius: 5 }] },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
+    scales: {
+      x: { grid: GRID, ticks: TICK, title: { display: true, text: 'VIX', color: '#3f5e7a', font: { size: 9 } } },
+      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'BTC ($)', color: '#3f5e7a', font: { size: 9 } } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 9 — Gold vs KRE scatter
+// ─────────────────────────────────────────────
+const ctx9 = document.getElementById('chartGoldKre').getContext('2d');
+const goldKrePairs = mainGold.map((g, i) => g !== null ? { x: mainKRE[i], y: g } : null).filter(v => v);
+new Chart(ctx9, {
+  type: 'scatter',
+  data: { datasets: [{ label: 'Gold vs KRE', data: goldKrePairs, backgroundColor: 'rgba(245,213,104,0.6)', pointRadius: 5 }] },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
+    scales: {
+      x: { grid: GRID, ticks: TICK, title: { display: true, text: 'KRE ($)', color: '#3f5e7a', font: { size: 9 } } },
+      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'Gold ($)', color: '#3f5e7a', font: { size: 9 } } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 10 — Coinbase Premium Bar
+// ─────────────────────────────────────────────
+const cpColors = mainCPFull.map(v => v === null ? 'transparent' : v >= 0 ? 'rgba(0,212,200,0.75)' : 'rgba(255,74,74,0.75)');
+const ctx10 = document.getElementById('chartCP').getContext('2d');
+new Chart(ctx10, {
+  type: 'bar',
+  data: {
+    labels: mainDates,
+    datasets: [{
+      label: 'Coinbase Premium (%)',
+      data: mainCPFull,
+      backgroundColor: cpColors,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...baseOptions('Premium (%)'),
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
+    },
+    scales: {
+      x: { grid: GRID, ticks: { ...TICK, maxRotation: 60 } },
+      y: { grid: GRID, ticks: TICK }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 11 — CP vs BTC
+// ─────────────────────────────────────────────
+const ctx11 = document.getElementById('chartCpBtc').getContext('2d');
+const cpBtcDates = mainDates.filter((_, i) => mainBTC[i] !== null && mainCPFull[i] !== null);
+const cpBtcVals  = mainCPFull.filter((v, i) => mainBTC[i] !== null && v !== null);
+const cpBtcPrices= mainBTC.filter((v, i) => v !== null && mainCPFull[i] !== null);
+new Chart(ctx11, {
+  type: 'line',
+  data: {
+    labels: cpBtcDates,
+    datasets: [
+      { label: 'CP (%)', data: cpBtcVals, borderColor: '#00d4c8', borderWidth: 2, pointRadius: 3, tension: 0.2, yAxisID: 'y' },
+      { label: 'BTC/1000', data: cpBtcPrices.map(v => v/1000), borderColor: 'rgba(255,180,0,0.6)', borderWidth: 1.5, borderDash: [3,2], pointRadius: 2, tension: 0.2, yAxisID: 'y2' }
+    ]
+  },
+  options: { ...baseOptions('CP (%)', 'BTC/1000') }
+});
+
+// ─────────────────────────────────────────────
+//  CHART 12 — Curve 3Pool
+// ─────────────────────────────────────────────
+const ctx12 = document.getElementById('chartCurve').getContext('2d');
+new Chart(ctx12, {
+  type: 'line',
+  data: {
+    labels: mainDates,
+    datasets: [{ label: 'USDT % in Curve 3Pool', data: mainCurve, borderColor: '#60a5fa', borderWidth: 2, pointRadius: 2, tension: 0.2, fill: { target: 'origin', above: 'rgba(96,165,250,0.08)' } }]
+  },
+  options: {
+    ...baseOptions('USDT %'),
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
+    },
+    scales: {
+      x: { grid: GRID, ticks: { ...TICK, maxRotation: 60 } },
+      y: { grid: GRID, ticks: TICK, min: 30, max: 52 }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CORRELATION MATRIX
+// ─────────────────────────────────────────────
+
+function pearson(a, b) {
+  const pairs = a.map((v, i) => [v, b[i]]).filter(p => p[0] !== null && p[1] !== null && !isNaN(p[0]) && !isNaN(p[1]));
+  if (pairs.length < 4) return null;
+  const n = pairs.length;
+  const m1 = pairs.reduce((s, p) => s + p[0], 0) / n;
+  const m2 = pairs.reduce((s, p) => s + p[1], 0) / n;
+  const num = pairs.reduce((s, p) => s + (p[0]-m1)*(p[1]-m2), 0);
+  const d1  = Math.sqrt(pairs.reduce((s, p) => s + (p[0]-m1)**2, 0));
+  const d2  = Math.sqrt(pairs.reduce((s, p) => s + (p[1]-m2)**2, 0));
+  return d1*d2 === 0 ? 0 : +(num / (d1*d2)).toFixed(3);
+}
+
+const corrVars = [
+  { label: 'KRE',   data: mainKRE,     fact: true },
+  { label: 'VIX',   data: mainVIX,     fact: true },
+  { label: '10Y',   data: mainYield,   fact: true },
+  { label: 'MOVE',  data: mainMOVE,    fact: true },
+  { label: 'BTC★',  data: mainBTC,     fact: false },
+  { label: 'Gold★', data: mainGold,    fact: false },
+  { label: 'CP★',   data: mainCPFull,  fact: false },
+];
+
+function corrColor(v) {
+  if (v === null) return 'rgba(26,36,56,0.3)';
+  const abs = Math.abs(v);
+  if (v > 0) return `rgba(34,217,133,${0.12 + abs * 0.55})`;
+  return `rgba(255,74,74,${0.12 + abs * 0.55})`;
+}
+
+const tbl = document.getElementById('corrTable');
+const hdr = tbl.insertRow();
+hdr.insertCell().textContent = '';
+corrVars.forEach(cv => {
+  const th = document.createElement('th');
+  th.textContent = cv.label;
+  th.style.color = cv.fact ? '#6e9abf' : '#ff9944';
+  hdr.appendChild(th);
+});
+corrVars.forEach((rv, ri) => {
+  const row = tbl.insertRow();
+  const lbl = row.insertCell();
+  lbl.textContent = rv.label;
+  lbl.className = 'row-label';
+  lbl.style.color = rv.fact ? '#6e9abf' : '#ff9944';
+  corrVars.forEach((cv, ci) => {
+    const cell = row.insertCell();
+    if (ri === ci) {
+      cell.textContent = '1.000';
+      cell.style.background = 'rgba(34,217,133,0.25)';
+      cell.style.color = '#22d985';
+    } else {
+      const r = pearson(rv.data, cv.data);
+      if (r === null) {
+        cell.textContent = 'n/a';
+        cell.className = 'corr-na';
+        cell.style.background = 'rgba(26,36,56,0.4)';
+      } else {
+        cell.textContent = r.toFixed(3);
+        cell.style.background = corrColor(r);
+        cell.style.color = r > 0 ? '#22d985' : '#ff4a4a';
+        if (Math.abs(r) < 0.15) { cell.style.color = '#4a6580'; }
+      }
+    }
+    cell.style.transition = 'background 0.3s';
+  });
+});
+
+// ─────────────────────────────────────────────
+//  CHART 13 — Radar (KRE correlations)
+// ─────────────────────────────────────────────
+const kreCorrs = corrVars.filter(v => v.label !== 'KRE').map(v => {
+  const r = pearson(mainKRE, v.data);
+  return r !== null ? Math.abs(r) : 0;
+});
+const kreCorrsRaw = corrVars.filter(v => v.label !== 'KRE').map(v => pearson(mainKRE, v.data));
+const ctx13 = document.getElementById('chartRadar').getContext('2d');
+new Chart(ctx13, {
+  type: 'radar',
+  data: {
+    labels: corrVars.filter(v => v.label !== 'KRE').map(v => v.label),
+    datasets: [{
+      label: '|r| with KRE',
+      data: kreCorrs,
+      backgroundColor: 'rgba(34,217,133,0.1)',
+      borderColor: '#22d985',
+      borderWidth: 2,
+      pointBackgroundColor: '#22d985',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
+    },
+    scales: {
+      r: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(26,36,56,0.8)' },
+        angleLines: { color: 'rgba(26,36,56,0.8)' },
+        pointLabels: { color: '#6e9abf', font: { size: 9 } },
+        ticks: { color: '#3f5e7a', font: { size: 8 }, stepSize: 0.2, backdropColor: 'transparent' }
+      }
+    }
+  }
+});
+
+// ─────────────────────────────────────────────
+//  CORRELATION INSIGHTS
+// ─────────────────────────────────────────────
+const insights = [
+  { pair: 'KRE ↔ VIX', r: pearson(mainKRE, mainVIX), interp: 'VIX 상승 = 지역은행 주가 하락. 공포 확산의 선행지표.' },
+  { pair: 'KRE ↔ MOVE', r: pearson(mainKRE, mainMOVE), interp: '채권시장 변동성 확대가 지역은행 밸류에이션 압박.' },
+  { pair: 'VIX ↔ MOVE', r: pearson(mainVIX, mainMOVE), interp: '주식·채권 공포의 동반 상승 — 시스템 리스크 신호.' },
+  { pair: 'KRE ↔ 10Y', r: pearson(mainKRE, mainYield), interp: '이 구간에서 금리와 은행주 방향성 확인.' },
+  { pair: 'BTC ↔ VIX', r: pearson(mainBTC, mainVIX), interp: '[SIM] 위기 시 BTC의 위험자산 성격 여부 테스트.' },
+  { pair: 'Gold ↔ KRE', r: pearson(mainGold, mainKRE), interp: '[SIM] 은행위기 시 금의 안전자산 역할 확인.' },
+];
+
+const insightBox = document.getElementById('corrInsights');
+insights.forEach(ins => {
+  const div = document.createElement('div');
+  div.style.cssText = 'background:rgba(8,19,31,0.8);border:1px solid #1a2940;border-radius:3px;padding:10px 12px;';
+  const r = ins.r;
+  const rStr = r !== null ? r.toFixed(3) : 'n/a';
+  const rColor = r !== null ? (r > 0 ? '#22d985' : '#ff4a4a') : '#3f5e7a';
+  const strength = r !== null ? (Math.abs(r) > 0.7 ? '강한 ' : Math.abs(r) > 0.4 ? '중간 ' : '약한 ') + (r > 0 ? '양의' : '음의') : '-';
+  div.innerHTML = `
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#3f5e7a;margin-bottom:6px">${ins.pair}</div>
+    <div style="font-size:17px;font-weight:600;color:${rColor};margin-bottom:4px">${rStr}</div>
+    <div style="font-size:9px;color:#4a6580;margin-bottom:4px">${strength} 상관관계</div>
+    <div style="font-size:9px;color:#6e9abf;line-height:1.5">${ins.interp}</div>
+  `;
+  insightBox.appendChild(div);
+});
+
+// ─────────────────────────────────────────────
+//  TABS
+// ─────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+<div style="padding:12px 24px 20px; border-top:1px solid #132238; margin-top:20px;">
+  <div style="font-size:9px;color:#3f5e7a;line-height:1.8">
+    ⚠ <strong style="color:#ff6b35">데이터 구분</strong> — 
+    FACT: KRE / VIX / US 10Y Yield / MOVE (2026.02.11~03.19 제공 데이터 확정값) &nbsp;|&nbsp;
+    EST: 2025.12~2026.02.10 주간 추정치 (Investing.com / SPGlobal / AdvisorPerspectives 참고, 근사값) &nbsp;|&nbsp;
+    SIM: BTC / Gold / Coinbase Premium / Curve 3Pool — 2008형 금융위기 스트레스 테스트 시나리오, 실제 시장 데이터 아님
+    <br>자본주의 생존일지 · 자산관리사 김병철 AFPK
+  </div>
+</div>
+
+</body>
+</html>
