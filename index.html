@@ -3,1439 +3,1322 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>자본주의 생존일지 — 위기지표 모니터</title>
+<title>자본주의 생존일지 — 위기지표 모니터 v4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #040b13;
-  --card: #08131f;
-  --card2: #0c1a2b;
-  --border: #132238;
-  --border2: #1d3452;
-  --text: #cde0f5;
-  --muted: #3f5e7a;
-  --secondary: #6e9abf;
-  --kre: #22d985;
-  --vix: #ff6b35;
-  --yield: #4fa8ff;
-  --move: #c07af6;
-  --btc: #ffb400;
-  --gold: #f5d568;
-  --cp: #00d4c8;
-  --sim: #ff4a4a;
-  --fact: #22d985;
-  --header-h: 64px;
-  --tab-h: 44px;
+:root{
+  --bg:#040b13;--card:#08131f;--border:#132238;--border2:#1d3452;
+  --text:#cde0f5;--muted:#3f5e7a;--sec:#6e9abf;
+  --kre:#22d985;--vix:#ff6b35;--yield:#4fa8ff;--move:#c07af6;
+  --btc:#ffb400;--gold:#f5d568;--cp:#00d4c8;
+  --usdkrw:#f97316;--dxy:#38bdf8;--vvix:#e879f9;--ratio:#a3e635;
+  --sim:#ff4a4a;--fact:#22d985;
+  --hdr:64px;--mini:44px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-body {
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 11px;
-  line-height: 1.5;
-  overflow-x: hidden;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;overflow-x:hidden;}
 
 /* ── HEADER ── */
-header {
-  height: var(--header-h);
-  background: var(--card);
-  border-bottom: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
-  color: var(--text);
-}
-.logo span { color: var(--kre); }
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  border-radius: 3px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.badge-fact { background: rgba(34,217,133,0.12); color: var(--fact); border: 1px solid rgba(34,217,133,0.25); }
-.badge-sim  { background: rgba(255,74,74,0.12);  color: var(--sim);  border: 1px solid rgba(255,74,74,0.25); }
-.header-range { color: var(--secondary); font-size: 10px; }
+header{height:var(--hdr);background:var(--card);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between;padding:0 22px;
+  position:sticky;top:0;z-index:200;}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.3px;}
+.logo span{color:var(--kre);}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:3px;
+  font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;}
+.b-live{background:rgba(34,217,133,0.12);color:var(--kre);border:1px solid rgba(34,217,133,0.25);}
+.b-sim{background:rgba(255,74,74,0.12);color:var(--sim);border:1px solid rgba(255,74,74,0.25);}
+.b-warn{background:rgba(255,180,0,0.12);color:#ffb400;border:1px solid rgba(255,180,0,0.25);}
+#updateTime{font-size:11px;color:var(--muted);}
+#refreshBtn{padding:7px 16px;background:transparent;border:1px solid var(--border2);
+  color:var(--sec);border-radius:2px;cursor:pointer;font-family:inherit;font-size:11px;
+  transition:all 0.15s;}
+#refreshBtn:hover{border-color:var(--kre);color:var(--kre);}
+#refreshBtn:disabled{opacity:0.4;cursor:not-allowed;}
 
-/* ── STATS ROW ── */
-.stats-row {
-  display: flex;
-  gap: 1px;
-  background: var(--border);
-  border-bottom: 1px solid var(--border);
+/* ── MINI STICKY BAR (non-overview tabs) ── */
+#miniBar{
+  height:44px;background:rgba(8,19,31,0.97);border-bottom:1px solid var(--border2);
+  display:none;align-items:center;gap:0;padding:0 16px;
+  position:sticky;top:var(--hdr);z-index:150;overflow-x:auto;scrollbar-width:none;
 }
-.stat-card {
-  flex: 1;
-  background: var(--card);
-  padding: 14px 18px;
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-}
-.stat-kre::before { background: var(--kre); }
-.stat-vix::before { background: var(--vix); }
-.stat-yield::before { background: var(--yield); }
-.stat-move::before { background: var(--move); }
-.stat-btc::before { background: var(--btc); }
-.stat-label {
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.stat-value {
-  font-size: 19px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.5px;
-}
-.stat-delta {
-  font-size: 9px;
-  margin-top: 3px;
-}
-.pos { color: var(--kre); }
-.neg { color: var(--sim); }
+#miniBar::-webkit-scrollbar{display:none;}
+#miniBar.visible{display:flex;}
+.mini-item{display:flex;align-items:center;gap:6px;padding:0 12px;border-right:1px solid var(--border);
+  white-space:nowrap;flex-shrink:0;}
+.mini-item:last-child{border-right:none;}
+.mini-label{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+.mini-val{font-size:15px;font-weight:600;}
+.mini-delta{font-size:10px;}
 
-/* ── TABS ── */
-.tab-bar {
-  height: var(--tab-h);
-  background: var(--card);
-  border-bottom: 1px solid var(--border2);
-  display: flex;
-  align-items: flex-end;
-  padding: 0 18px;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.tab-bar::-webkit-scrollbar { display: none; }
-.tab {
-  height: 36px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  letter-spacing: 0.02em;
-}
-.tab:hover { color: var(--text); }
-.tab.active { color: var(--text); border-bottom-color: var(--kre); }
-.tab-warn { font-size: 8px; padding: 1px 4px; border-radius: 2px; background: rgba(255,74,74,0.15); color: var(--sim); }
+/* ── TAB BAR ── */
+.tab-bar{height:46px;background:var(--card);border-bottom:1px solid var(--border2);
+  display:flex;align-items:flex-end;padding:0 16px;overflow-x:auto;scrollbar-width:none;
+  position:sticky;top:calc(var(--hdr));z-index:140;}
+.tab-bar.with-mini{top:calc(var(--hdr) + var(--mini));}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab{height:40px;padding:0 18px;display:flex;align-items:center;gap:6px;font-size:13px;
+  font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all 0.15s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);border-bottom-color:var(--kre);}
+.tab-warn{font-size:8px;padding:1px 4px;border-radius:2px;background:rgba(255,74,74,0.15);color:var(--sim);}
 
-/* ── MAIN CONTENT ── */
-main { padding: 20px 24px; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+/* ── MAIN ── */
+main{padding:20px 24px 32px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── HERO STATS (Overview) ── */
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+.hero-card{
+  background:var(--card);border:1px solid var(--border);border-radius:4px;
+  padding:18px 20px 12px;position:relative;overflow:hidden;cursor:default;
+  height:148px;
+  transition:border-color 0.15s;
+}
+.hero-card:hover{border-color:var(--border2);}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.hc-kre::before{background:var(--kre);}
+.hc-vix::before{background:var(--vix);}
+.hc-yield::before{background:var(--yield);}
+.hc-move::before{background:var(--move);}
+.hc-usdkrw::before{background:var(--usdkrw);}
+.hc-dxy::before{background:var(--dxy);}
+.hc-vvix::before{background:var(--vvix);}
+.hc-ratio::before{background:var(--ratio);}
+.hero-label{font-size:11px;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);position:relative;z-index:1;
+  margin-bottom:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.hero-val{font-size:36px;font-weight:600;letter-spacing:-1px;margin-bottom:4px;line-height:1.1;position:relative;z-index:1;}
+.hero-delta{font-size:12px;margin-bottom:0;min-height:16px;position:relative;z-index:1;}
+.hero-spark{position:absolute;bottom:0;left:0;width:100%;height:52px;opacity:0.38;pointer-events:none;z-index:0;}
+.hero-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.3;position:relative;z-index:1;}
+.pos{color:var(--kre);}
+.neg{color:var(--sim);}
+.neu{color:var(--muted);}
+
+/* ── ALERT BANNER ── */
+.alert-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.alert-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:3px;font-size:11px;font-weight:600;}
+.a-red{background:rgba(255,74,74,0.1);color:var(--sim);border:1px solid rgba(255,74,74,0.25);}
+.a-orange{background:rgba(255,107,53,0.1);color:var(--vix);border:1px solid rgba(255,107,53,0.25);}
+.a-yellow{background:rgba(255,180,0,0.1);color:#ffb400;border:1px solid rgba(255,180,0,0.25);}
+.a-green{background:rgba(34,217,133,0.1);color:var(--kre);border:1px solid rgba(34,217,133,0.25);}
 
 /* ── CHART CARDS ── */
-.chart-grid {
-  display: grid;
-  gap: 16px;
-}
-.chart-grid-2 { grid-template-columns: 1fr 1fr; }
-.chart-grid-1 { grid-template-columns: 1fr; }
-.chart-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 16px 18px;
-  position: relative;
-}
-.chart-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 4px;
-  letter-spacing: 0.02em;
-}
-.chart-subtitle {
-  font-size: 9px;
-  color: var(--secondary);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.chart-wrap {
-  position: relative;
-}
+.chart-grid{display:grid;gap:10px;}
+.g1{grid-template-columns:1fr;}
+.g2{grid-template-columns:1fr 1fr;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px 18px;}
+.chart-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px;}
+.chart-sub{font-size:12px;color:var(--sec);margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.period-note{font-size:11px;color:var(--muted);padding:6px 12px;margin-bottom:12px;
+  background:rgba(19,34,56,0.5);border-left:2px solid var(--border2);display:flex;align-items:center;gap:8px;}
+.pd{width:6px;height:6px;border-radius:50%;display:inline-block;}
+.pd-est{background:var(--muted);}
+.pd-fact{background:var(--kre);}
 
-/* ── PERIOD DIVIDER NOTE ── */
-.period-note {
-  font-size: 9px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
-  padding: 6px 10px;
-  background: rgba(19,34,56,0.6);
-  border-left: 2px solid var(--border2);
-}
-.period-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.dot-est { background: var(--muted); border: 1px dashed var(--muted); }
-.dot-fact { background: var(--kre); }
-
-/* ── CORRELATION MATRIX ── */
-.corr-wrap {
-  overflow-x: auto;
-}
-.corr-matrix {
-  border-collapse: collapse;
-  min-width: 100%;
-}
-.corr-matrix th {
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--secondary);
-  padding: 8px 14px;
-  text-align: center;
-  white-space: nowrap;
-  border-bottom: 1px solid var(--border2);
-}
-.corr-matrix td {
-  padding: 7px 14px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 500;
-  border: 1px solid rgba(19,34,56,0.4);
-}
-.corr-matrix .row-label {
-  text-align: left;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--secondary);
-  padding-right: 20px;
-  white-space: nowrap;
-}
-.corr-na { color: var(--muted) !important; font-size: 9px; }
-
-/* ── DISCLAIMER ── */
-.disclaimer {
-  margin-top: 20px;
-  padding: 12px 16px;
-  background: rgba(255,74,74,0.05);
-  border: 1px solid rgba(255,74,74,0.15);
-  border-radius: 3px;
-  font-size: 9px;
-  color: var(--secondary);
-  line-height: 1.7;
-}
-.disclaimer strong { color: var(--sim); }
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--card); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-/* ── INLINE INFO TOGGLE ── */
-.info-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  font-size: 9px;
-  color: var(--muted);
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  padding: 2px 8px;
-  margin-bottom: 10px;
-  transition: all 0.15s;
-  user-select: none;
-  background: transparent;
-  font-family: inherit;
-}
-.info-toggle:hover { border-color: var(--secondary); color: var(--secondary); }
-.info-toggle.open { border-color: var(--kre); color: var(--kre); }
-.info-box {
-  display: none;
-  background: rgba(19,34,56,0.55);
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  font-size: 10px;
-  color: var(--secondary);
-  line-height: 1.75;
-}
-.info-box.open { display: block; }
-.info-box strong { color: var(--text); }
-.info-box .hl-kre  { color: var(--kre); font-weight: 600; }
-.info-box .hl-vix  { color: var(--vix); font-weight: 600; }
-.info-box .hl-yield{ color: var(--yield); font-weight: 600; }
-.info-box .hl-move { color: var(--move); font-weight: 600; }
-.info-box .hl-btc  { color: var(--btc); font-weight: 600; }
-.info-box .hl-gold { color: var(--gold); font-weight: 600; }
-.info-box .hl-cp   { color: var(--cp); font-weight: 600; }
-.info-box .signal-row {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-.signal-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-.chip-green { background: rgba(34,217,133,0.12); color: var(--kre); border: 1px solid rgba(34,217,133,0.25); }
-.chip-yellow{ background: rgba(255,180,0,0.12);  color: #ffb400;    border: 1px solid rgba(255,180,0,0.25); }
-.chip-orange{ background: rgba(255,107,53,0.12); color: var(--vix); border: 1px solid rgba(255,107,53,0.25); }
-.chip-red   { background: rgba(255,74,74,0.12);  color: var(--sim); border: 1px solid rgba(255,74,74,0.25); }
-.info-box .vix-table {
-  margin-top: 8px;
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 9px;
-}
-.info-box .vix-table td {
-  padding: 5px 10px;
-  border: 1px solid rgba(29,52,82,0.5);
-}
-.info-box .vix-table tr:first-child td { color: var(--secondary); font-weight: 600; }
-.info-quote {
-  border-left: 2px solid var(--kre);
-  padding: 6px 12px;
-  margin: 8px 0;
-  color: var(--text);
-  font-style: italic;
-  font-size: 10px;
-  background: rgba(34,217,133,0.04);
-}
-.info-quote.sim { border-left-color: var(--sim); background: rgba(255,74,74,0.04); }
+/* ── INFO TOGGLE ── */
+.info-toggle{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;
+  color:var(--muted);border:1px solid var(--border2);border-radius:3px;padding:2px 8px;
+  margin-bottom:8px;transition:all 0.15s;background:transparent;font-family:inherit;}
+.info-toggle:hover{border-color:var(--sec);color:var(--sec);}
+.info-toggle.open{border-color:var(--kre);color:var(--kre);}
+.info-box{display:none;background:rgba(19,34,56,0.55);border:1px solid var(--border2);
+  border-radius:3px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:var(--sec);line-height:1.8;}
+.info-box.open{display:block;}
+.info-box strong{color:var(--text);}
+.iq{border-left:2px solid var(--kre);padding:5px 10px;margin:7px 0;color:var(--text);
+  font-style:italic;font-size:11px;background:rgba(34,217,133,0.04);}
+.iq.sim{border-left-color:var(--sim);background:rgba(255,74,74,0.04);}
+.sc-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.sc{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;
+  font-size:11px;font-weight:600;}
+.sc-g{background:rgba(34,217,133,0.12);color:var(--kre);border:1px solid rgba(34,217,133,0.25);}
+.sc-r{background:rgba(255,74,74,0.12);color:var(--sim);border:1px solid rgba(255,74,74,0.25);}
+.sc-y{background:rgba(255,180,0,0.12);color:#ffb400;border:1px solid rgba(255,180,0,0.25);}
+.sc-o{background:rgba(255,107,53,0.12);color:var(--vix);border:1px solid rgba(255,107,53,0.25);}
+.vt{margin-top:8px;border-collapse:collapse;width:100%;font-size:11px;}
+.vt td{padding:4px 8px;border:1px solid rgba(29,52,82,0.5);}
+.vt tr:first-child td{color:var(--sec);font-weight:600;}
 
 /* ── GUIDE TAB ── */
-.guide-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.guide-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 20px 22px;
-  position: relative;
-  overflow: hidden;
-}
-.guide-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-.gc-kre::before  { background: var(--kre); }
-.gc-vix::before  { background: var(--vix); }
-.gc-yield::before{ background: var(--yield); }
-.gc-move::before { background: var(--move); }
-.gc-btc::before  { background: var(--btc); }
-.gc-gold::before { background: var(--gold); }
-.gc-cp::before   { background: var(--cp); }
-.gc-curve::before{ background: #60a5fa; }
-.guide-label {
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.guide-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  letter-spacing: -0.3px;
-}
-.guide-body {
-  font-size: 10.5px;
-  color: var(--secondary);
-  line-height: 1.8;
-}
-.guide-body strong { color: var(--text); }
-.guide-summary {
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  padding: 22px 24px;
-  margin-top: 14px;
-}
-.guide-summary-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 13px;
-  font-weight: 800;
-  margin-bottom: 12px;
-  color: var(--kre);
-}
-.guide-summary-body {
-  font-size: 11px;
-  color: var(--secondary);
-  line-height: 1.85;
-}
-.guide-summary-body strong { color: var(--text); }
-@media (max-width: 700px) {
-  .guide-grid { grid-template-columns: 1fr; }
-}
+.guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.gc{background:var(--card);border:1px solid var(--border);border-radius:4px;
+  padding:18px 20px;position:relative;overflow:hidden;}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.gc-kre::before{background:var(--kre);}
+.gc-vix::before{background:var(--vix);}
+.gc-yield::before{background:var(--yield);}
+.gc-move::before{background:var(--move);}
+.gc-usdkrw::before{background:var(--usdkrw);}
+.gc-dxy::before{background:var(--dxy);}
+.gc-vvix::before{background:var(--vvix);}
+.gc-ratio::before{background:var(--ratio);}
+.gc-btc::before{background:var(--btc);}
+.gc-gold::before{background:var(--gold);}
+.gc-cp::before{background:var(--cp);}
+.gc-curve::before{background:#60a5fa;}
+.g-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.g-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:12px;letter-spacing:-0.3px;}
+.g-body{font-size:13px;color:var(--sec);line-height:1.85;}
+.g-body strong{color:var(--text);}
+.g-summary{background:var(--card);border:1px solid var(--border2);border-radius:4px;
+  padding:20px 22px;margin-top:12px;}
+.g-sum-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:12px;color:var(--kre);}
+.g-sum-body{font-size:13px;color:var(--sec);line-height:1.9;}
+.g-sum-body strong{color:var(--text);}
 
-@media (max-width: 700px) {
-  .chart-grid-2 { grid-template-columns: 1fr; }
-  .stats-row { flex-wrap: wrap; }
-  .stat-card { min-width: 45%; }
-  header { padding: 0 14px; }
-  main { padding: 14px; }
+/* ── DISCLAIMER ── */
+.disc{padding:12px 16px;background:rgba(255,74,74,0.05);border:1px solid rgba(255,74,74,0.15);
+  border-radius:3px;font-size:12px;color:var(--sec);line-height:1.75;margin-bottom:14px;}
+.disc strong{color:var(--sim);}
+
+/* ── CORR ── */
+.corr-matrix{border-collapse:collapse;min-width:100%;}
+.corr-matrix th{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--sec);
+  padding:9px 14px;text-align:center;border-bottom:1px solid var(--border2);}
+.corr-matrix td{padding:8px 14px;text-align:center;font-size:13px;font-weight:500;
+  border:1px solid rgba(19,34,56,0.4);}
+.corr-matrix .rl{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--sec);padding-right:16px;white-space:nowrap;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--card);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── FOOTER ── */
+.footer{padding:12px 24px 20px;border-top:1px solid var(--border);margin-top:20px;
+  font-size:12px;color:var(--muted);line-height:1.8;}
+
+@media(max-width:768px){
+  .hero-grid{grid-template-columns:1fr 1fr;}
+  .hero-card{height:168px;padding:12px 14px 10px;}
+  .hero-val{font-size:26px;}
+  .hero-label{font-size:10px;}
+  .hero-delta{font-size:11px;}
+  .hero-note{font-size:9px;}
+  .g2{grid-template-columns:1fr;}
+  .guide-grid{grid-template-columns:1fr;}
+  header{padding:0 14px;}
+  main{padding:12px 14px 24px;}
+}
+@media(max-width:480px){
+  .hero-grid{grid-template-columns:1fr 1fr;}
+  .hero-card{height:95px;padding:10px 12px 8px;}
+  .hero-val{font-size:24px;}
+  .hero-note{display:none;}
 }
 </style>
 </head>
 <body>
 
+<!-- ── HEADER ── -->
 <header>
   <div class="logo">자본주의 생존일지 <span>// 위기지표 모니터</span></div>
-  <div class="header-meta">
-    <span class="badge badge-fact">● FACT · KRE / VIX / YIELD / MOVE</span>
-    <span class="badge badge-sim">⚠ SIM · BTC / GOLD / CP</span>
-    <span class="header-range">2025.12 → 2026.03.19</span>
+  <div class="hdr-right">
+    <span class="badge b-live" id="badge-live">● LIVE</span>
+    <span class="badge b-sim">⚠ SIM · CP / CURVE</span>
+    <span id="updateTime">데이터 로딩 중...</span>
+    <button id="refreshBtn" onclick="manualRefresh()">↻ 새로고침</button>
   </div>
 </header>
 
-<!-- STATS ROW -->
-<div class="stats-row">
-  <div class="stat-card stat-kre">
-    <div class="stat-label"><span style="color:var(--kre)">■</span> KRE (지역은행 ETF)</div>
-    <div class="stat-value">$63.19</div>
-    <div class="stat-delta neg">▼ -12.5% from Feb 11 peak ($72.18)</div>
+<!-- ── MINI STICKY BAR ── -->
+<div id="miniBar">
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--kre)">KRE</span>
+    <span class="mini-val" id="m-kre">—</span>
+    <span class="mini-delta" id="md-kre"></span>
   </div>
-  <div class="stat-card stat-vix">
-    <div class="stat-label"><span style="color:var(--vix)">■</span> VIX (공포지수)</div>
-    <div class="stat-value">24.06</div>
-    <div class="stat-delta neg">▲ 구간 고점 29.45 (Mar 16)</div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--vix)">VIX</span>
+    <span class="mini-val" id="m-vix">—</span>
+    <span class="mini-delta" id="md-vix"></span>
   </div>
-  <div class="stat-card stat-yield">
-    <div class="stat-label"><span style="color:var(--yield)">■</span> US 10Y 국채금리</div>
-    <div class="stat-value">4.26%</div>
-    <div class="stat-delta pos">구간 내 횡보 (3.97~4.32%)</div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--yield)">10Y</span>
+    <span class="mini-val" id="m-yield">—</span>
+    <span class="mini-delta" id="md-yield"></span>
   </div>
-  <div class="stat-card stat-move">
-    <div class="stat-label"><span style="color:var(--move)">■</span> MOVE (채권 변동성)</div>
-    <div class="stat-value">81.25</div>
-    <div class="stat-delta neg">▲ 구간 고점 112.40 → 재반등 98.15</div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--move)">MOVE</span>
+    <span class="mini-val" id="m-move">—</span>
+    <span class="mini-delta" id="md-move"></span>
   </div>
-  <div class="stat-card stat-btc">
-    <div class="stat-label"><span style="color:var(--btc)">■</span> BTC <span class="badge badge-sim" style="font-size:8px;padding:1px 4px">SIM</span></div>
-    <div class="stat-value">$72,000</div>
-    <div class="stat-delta pos">시뮬레이션 범위: $55,800~$74,830</div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--usdkrw)">USD/KRW</span>
+    <span class="mini-val" id="m-usdkrw">—</span>
+    <span class="mini-delta" id="md-usdkrw"></span>
+  </div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--dxy)">DXY</span>
+    <span class="mini-val" id="m-dxy">—</span>
+    <span class="mini-delta" id="md-dxy"></span>
+  </div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--vvix)">VVIX</span>
+    <span class="mini-val" id="m-vvix">—</span>
+    <span class="mini-delta" id="md-vvix"></span>
+  </div>
+  <div class="mini-item">
+    <span class="mini-label" style="color:var(--ratio)">VVIX/VIX</span>
+    <span class="mini-val" id="m-ratio">—</span>
+    <span class="mini-delta" id="md-ratio"></span>
   </div>
 </div>
 
-<!-- TAB BAR -->
-<div class="tab-bar">
+<!-- ── TAB BAR ── -->
+<div class="tab-bar" id="tabBar">
   <div class="tab active" data-tab="overview">Overview</div>
-  <div class="tab" data-tab="yield">Yield &amp; MOVE</div>
-  <div class="tab" data-tab="crypto">BTC &amp; Gold <span class="tab-warn">SIM</span></div>
-  <div class="tab" data-tab="premium">Coinbase Premium <span class="tab-warn">SIM</span></div>
-  <div class="tab" data-tab="corr">Correlation Matrix</div>
   <div class="tab" data-tab="guide">📖 지표 해설</div>
+  <div class="tab" data-tab="yield">Yield &amp; MOVE</div>
+  <div class="tab" data-tab="dollar">달러 &amp; DXY</div>
+  <div class="tab" data-tab="vvix">VVIX 분석</div>
+  <div class="tab" data-tab="crypto">BTC &amp; Gold</div>
+  <div class="tab" data-tab="premium">Coinbase <span class="tab-warn">SIM</span></div>
+  <div class="tab" data-tab="corr">Correlation</div>
 </div>
 
 <main>
 
-<!-- ── TAB 1: OVERVIEW ── -->
+<!-- ══════════════════════════════════════
+     TAB 1: OVERVIEW
+══════════════════════════════════════ -->
 <div class="tab-panel active" id="tab-overview">
-  <div class="chart-grid chart-grid-1">
-    <div class="chart-card">
-      <div class="chart-title">KRE vs VIX — 지역은행 ETF & 공포지수</div>
-      <div class="chart-subtitle">
-        KRE (좌축, $) / VIX (우축, pt)
-        <span class="badge badge-fact">FACT</span>
-      </div>
-      <button class="info-toggle" onclick="toggleInfo('info-krevix', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-krevix">
-        <strong>KRE</strong>는 미국 중소형 지역은행들을 한 바구니에 담은 ETF입니다. 2023년 SVB 파산 때 폭락했던 바로 그 섹터입니다.<br><br>
-        <div class="info-quote">KRE가 내려간다 = 시장이 지역은행들을 위험하다고 판단하고 있다</div>
-        금융위기는 항상 대형 은행이 아니라 <strong>지역은행에서 먼저 터집니다.</strong> 그래서 선행 위기지표로 사용합니다.<br><br>
-        <strong>VIX</strong>는 S&amp;P500 옵션 시장에서 계산되는 공포지수로, <strong>"투자자들이 앞으로 한 달이 얼마나 무섭냐"</strong>를 숫자로 나타낸 것입니다.
-        <table class="vix-table">
-          <tr><td>VIX 수준</td><td>시장 분위기</td></tr>
-          <tr><td><span class="hl-kre">15 이하</span></td><td>평온, 낙관</td></tr>
-          <tr><td><span style="color:var(--yield)">15 ~ 20</span></td><td>보통, 경계 시작</td></tr>
-          <tr><td><span class="hl-vix">20 ~ 30</span></td><td>불안, 긴장</td></tr>
-          <tr><td><span style="color:var(--sim)">30 이상</span></td><td>공포, 패닉</td></tr>
-        </table>
-        <div class="signal-row">
-          <span class="signal-chip chip-red">현재 구간: 24~29 → 시장이 꽤 긴장 중</span>
-          <span class="signal-chip chip-orange">KRE -12.5% (2월 고점 대비)</span>
-        </div>
-      </div>
-      <div class="period-note">
-        <span class="period-dot dot-est"></span> 점선: 2025.12~2026.02.10 주간 추정치 (웹 검색 기반 근사값)
-        &nbsp;|&nbsp;
-        <span class="period-dot dot-fact"></span> 실선: 2026.02.11~03.19 제공 데이터 (일별 확정값)
-      </div>
-      <div class="chart-wrap"><canvas id="chartOverview" height="100"></canvas></div>
+
+  <!-- Alert Row -->
+  <div class="alert-row" id="alertRow"></div>
+
+  <!-- Hero Grid Row 1 — 기존 FACT 4종 -->
+  <div class="hero-grid" id="heroGrid1">
+    <div class="hero-card hc-kre">
+      <div class="hero-label"><span style="color:var(--kre)">■</span> KRE · 지역은행 ETF <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-kre">—</div>
+      <div class="hero-delta" id="hd-kre"><span class="neu">데이터 로딩 중</span></div>
+      <canvas class="hero-spark" id="sp-kre"></canvas>
+      <div class="hero-note">미국 지역은행 건전성 선행지표</div>
+    </div>
+    <div class="hero-card hc-vix">
+      <div class="hero-label"><span style="color:var(--vix)">■</span> VIX · 공포지수 <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-vix">—</div>
+      <div class="hero-delta" id="hd-vix"><span class="neu">데이터 로딩 중</span></div>
+      <canvas class="hero-spark" id="sp-vix"></canvas>
+      <div class="hero-note">20↑경계 / 30↑공포</div>
+    </div>
+    <div class="hero-card hc-yield">
+      <div class="hero-label"><span style="color:var(--yield)">■</span> US 10Y Yield <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-yield">—</div>
+      <div class="hero-delta" id="hd-yield"><span class="neu">데이터 로딩 중</span></div>
+      <canvas class="hero-spark" id="sp-yield"></canvas>
+      <div class="hero-note">전 세계 자산가격 기준점</div>
+    </div>
+    <div class="hero-card hc-move">
+      <div class="hero-label"><span style="color:var(--move)">■</span> MOVE · 채권공포 <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-move">—</div>
+      <div class="hero-delta" id="hd-move"><span class="neu">데이터 로딩 중</span></div>
+      <canvas class="hero-spark" id="sp-move"></canvas>
+      <div class="hero-note">VIX 동반상승 시 최위험 신호</div>
     </div>
   </div>
-  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
+
+  <!-- Hero Grid Row 2 — 신규 4종 -->
+  <div class="hero-grid" id="heroGrid2">
+    <div class="hero-card hc-usdkrw">
+      <div class="hero-label"><span style="color:var(--usdkrw)">■</span> USD/KRW · 달러환율 <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-usdkrw">—</div>
+      <div class="hero-delta" id="hd-usdkrw"><span class="neu">API 연결 중...</span></div>
+      <canvas class="hero-spark" id="sp-usdkrw"></canvas>
+      <div class="hero-note">상승=달러강세·원화약세=위기심리↑</div>
+    </div>
+    <div class="hero-card hc-dxy">
+      <div class="hero-label"><span style="color:var(--dxy)">■</span> DXY · 달러인덱스 <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-dxy">—</div>
+      <div class="hero-delta" id="hd-dxy"><span class="neu">API 연결 중...</span></div>
+      <canvas class="hero-spark" id="sp-dxy"></canvas>
+      <div class="hero-note">6개 주요통화 대비 달러 강도</div>
+    </div>
+    <div class="hero-card hc-vvix">
+      <div class="hero-label"><span style="color:var(--vvix)">■</span> VVIX · 변동성의변동성 <span class="badge b-live" style="font-size:9px;padding:2px 6px">LIVE</span></div>
+      <div class="hero-val" id="h-vvix">—</div>
+      <div class="hero-delta" id="hd-vvix"><span class="neu">API 연결 중...</span></div>
+      <canvas class="hero-spark" id="sp-vvix"></canvas>
+      <div class="hero-note">공포의 공포 / 100↑ 극단적 불안</div>
+    </div>
+    <div class="hero-card hc-ratio">
+      <div class="hero-label"><span style="color:var(--ratio)">■</span> VVIX/VIX · 공포배율</div>
+      <div class="hero-val" id="h-ratio">—</div>
+      <div class="hero-delta" id="hd-ratio"><span class="neu">API 연결 중...</span></div>
+      <canvas class="hero-spark" id="sp-ratio"></canvas>
+      <div class="hero-note">5↑ 극단 패닉 / 위기 임박 신호</div>
+    </div>
+  </div>
+
+  <!-- Overview Charts -->
+  <div class="chart-grid g1">
     <div class="chart-card">
-      <div class="chart-title">KRE 누적 수익률 (%)</div>
-      <div class="chart-subtitle">2026.02.11 기준 100으로 정규화 <span class="badge badge-fact">FACT</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-krereturn', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-krereturn">
-        2월 11일 시작점을 0%로 놓고, 이후 날짜별로 KRE 가격이 얼마나 올랐는지 내렸는지를 보여줍니다.<br><br>
-        <strong>녹색 막대</strong>는 전날보다 오른 날, <strong>빨간 막대</strong>는 내린 날입니다.<br>
-        전체 추세가 우하향한다면 → 지역은행 섹터에 지속적인 매도 압력이 있다는 신호입니다.
-      </div>
-      <div class="chart-wrap"><canvas id="chartKreReturn" height="130"></canvas></div>
+      <div class="chart-title">KRE vs VIX — 3개월 추이</div>
+      <div class="chart-sub">KRE (좌, $) / VIX (우, pt) <span class="badge b-live">FACT</span></div>
+      <div class="period-note"><span class="pd pd-est"></span>점선:추정치&nbsp;|&nbsp;<span class="pd pd-fact"></span>실선:확정값</div>
+      <canvas id="chartOverview" height="80"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid g2" style="margin-top:10px">
+    <div class="chart-card">
+      <div class="chart-title">KRE 일별 수익률</div>
+      <div class="chart-sub">2026.02.11 기준 <span class="badge b-live">FACT</span></div>
+      <canvas id="chartKreReturn" height="130"></canvas>
     </div>
     <div class="chart-card">
-      <div class="chart-title">VIX 히스토그램 분포</div>
-      <div class="chart-subtitle">2026.02.11~03.19 구간 <span class="badge badge-fact">FACT</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-vixdist', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-vixdist">
-        이 구간 동안 VIX가 어느 범위에서 가장 많이 머물렀는지를 보여줍니다.<br><br>
-        막대가 오른쪽(높은 숫자)으로 몰려 있을수록 공포 구간에 오래 머물렀다는 뜻입니다.<br>
-        <div class="info-quote">VIX가 20 이상인 날이 많을수록 → 시장 참여자들이 오랫동안 불안했다는 증거</div>
-      </div>
-      <div class="chart-wrap"><canvas id="chartVixDist" height="130"></canvas></div>
+      <div class="chart-title">VIX 분포 히스토그램</div>
+      <div class="chart-sub">구간 내 공포 빈도 <span class="badge b-live">FACT</span></div>
+      <canvas id="chartVixDist" height="130"></canvas>
     </div>
   </div>
 </div>
 
-<!-- ── TAB 2: YIELD & MOVE ── -->
+<!-- ══════════════════════════════════════
+     TAB 2: YIELD & MOVE
+══════════════════════════════════════ -->
 <div class="tab-panel" id="tab-yield">
-  <div class="chart-grid chart-grid-1">
+  <div class="chart-grid g1">
     <div class="chart-card">
-      <div class="chart-title">US 10Y 국채금리 vs MOVE 지수</div>
-      <div class="chart-subtitle">10Y Yield (좌축, %) / MOVE (우축, pt) <span class="badge badge-fact">FACT</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-yieldmove', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-yieldmove">
-        <strong>US 10Y 금리</strong>는 미국 정부가 10년짜리 빚을 빌릴 때 내는 이자율입니다.<br>
-        <div class="info-quote">전 세계 모든 자산의 가격은 이 숫자를 기준으로 움직입니다.</div>
-        금리가 오른다 → 돈의 값이 비싸진다 → 주식·부동산 등 위험자산 가격에 압박이 옵니다.<br>
-        현재 <strong>4.26%</strong> — 2~3년 전(0%대)에 비하면 여전히 높은 수준입니다.<br><br>
-        <strong>MOVE</strong>는 채권시장의 공포지수입니다. VIX가 주식시장 공포지수라면, MOVE는 <strong>채권 투자자들이 얼마나 방향을 모르겠냐</strong>를 나타냅니다.
-        <div class="info-quote">VIX와 MOVE가 동시에 오를 때 → 주식·채권 모두 불안 → 가장 위험한 신호</div>
-        <div class="signal-row">
-          <span class="signal-chip chip-red">2월 초 MOVE 112 → 시스템 긴장 고조</span>
-          <span class="signal-chip chip-orange">3월 중순 MOVE 98 재반등 → 경계 유지</span>
-        </div>
+      <div class="chart-title">US 10Y 국채금리 vs MOVE</div>
+      <div class="chart-sub">Yield (좌, %) / MOVE (우, pt) <span class="badge b-live">FACT</span></div>
+      <button class="info-toggle" onclick="tgl('i-yieldmove',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-yieldmove">
+        <strong>US 10Y 금리</strong>는 미국 정부 10년 국채 이자율로, 전 세계 자산가격의 기준점입니다.<br>
+        <div class="iq">금리↑ → 돈값↑ → 위험자산 압박 / 금리↓ → 유동성↑ → 위험자산 선호</div>
+        <strong>MOVE</strong>는 채권시장 공포지수. VIX와 MOVE가 동시에 오르면 최위험 신호.
+        <div class="sc-row"><span class="sc sc-r">100+ → 채권시장 혼란</span><span class="sc sc-g">60 이하 → 안정</span></div>
       </div>
-      <div class="period-note">
-        <span class="period-dot dot-est"></span> 점선: 2025.12~2026.02.10 주간 추정치
-        &nbsp;|&nbsp;
-        <span class="period-dot dot-fact"></span> 실선: 2026.02.11~03.19 확정 데이터
-      </div>
-      <div class="chart-wrap"><canvas id="chartYieldMove" height="100"></canvas></div>
+      <div class="period-note"><span class="pd pd-est"></span>점선:추정&nbsp;|&nbsp;<span class="pd pd-fact"></span>실선:확정</div>
+      <canvas id="chartYieldMove" height="90"></canvas>
     </div>
   </div>
-  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
+  <div class="chart-grid g2" style="margin-top:10px">
     <div class="chart-card">
       <div class="chart-title">KRE vs 10Y Yield 산점도</div>
-      <div class="chart-subtitle">금리와 지역은행 주가의 관계 <span class="badge badge-fact">FACT</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-scatter1', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-scatter1">
-        각 점 하나가 하루입니다. X축은 그날의 금리, Y축은 그날의 KRE 가격입니다.<br>
-        점들이 <strong>오른쪽 위→왼쪽 아래</strong>로 모인다면 → 금리가 높을수록 KRE가 낮다는 뜻 (음의 상관관계).<br>
-        <strong>오른쪽 위→오른쪽 위</strong>로 모인다면 → 금리와 KRE가 같은 방향 (양의 상관관계).
-      </div>
-      <div class="chart-wrap"><canvas id="chartScatterKreYield" height="160"></canvas></div>
+      <div class="chart-sub">금리↔은행주 관계 <span class="badge b-live">FACT</span></div>
+      <button class="info-toggle" onclick="tgl('i-sc1',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-sc1">점 하나 = 하루. X=금리, Y=KRE. 우하향 = 금리↑때 은행주↓ (음의 상관).</div>
+      <canvas id="chartSc1" height="160"></canvas>
     </div>
     <div class="chart-card">
       <div class="chart-title">VIX vs MOVE 산점도</div>
-      <div class="chart-subtitle">주식 & 채권 변동성 동조화 <span class="badge badge-fact">FACT</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-scatter2', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-scatter2">
-        VIX(주식 공포)와 MOVE(채권 공포)가 같이 움직이는지 확인하는 차트입니다.<br><br>
-        점들이 <strong>우상향</strong>으로 모이면 → 주식과 채권 시장이 동시에 긴장 → <strong>시스템 전체가 흔들리는 신호</strong>입니다.<br>
-        반대로 점들이 흩어져 있으면 → 한쪽만 불안한 것이므로 상대적으로 덜 위험합니다.
-      </div>
-      <div class="chart-wrap"><canvas id="chartScatterVixMove" height="160"></canvas></div>
+      <div class="chart-sub">주식·채권 공포 동조화 <span class="badge b-live">FACT</span></div>
+      <button class="info-toggle" onclick="tgl('i-sc2',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-sc2">우상향으로 몰릴수록 주식+채권 동시 공포 → 시스템 전체 위기 신호.</div>
+      <canvas id="chartSc2" height="160"></canvas>
     </div>
   </div>
 </div>
 
-<!-- ── TAB 3: BTC & GOLD ── -->
-<div class="tab-panel" id="tab-crypto">
-  <div class="disclaimer" style="margin-top:0;margin-bottom:16px;">
-    <strong>⚠ SIMULATION DATA</strong> — 아래 BTC 및 Gold 데이터는 2008년형 금융시스템 위기를 가정한 스트레스 테스트 시나리오 시뮬레이션 값입니다. 실제 시장 데이터가 아닙니다.
-  </div>
-  <div class="chart-grid chart-grid-1">
+<!-- ══════════════════════════════════════
+     TAB 3: 달러 & DXY
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-dollar">
+  <div class="chart-grid g1">
     <div class="chart-card">
-      <div class="chart-title">BTC vs Gold 가격 추이</div>
-      <div class="chart-subtitle">BTC (좌축, $) / Gold (우축, $) — 2026.02.18 시작 <span class="badge badge-sim">SIMULATION</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-btcgold', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-btcgold">
-        <strong>BTC(비트코인)</strong>은 위기 시 어떻게 반응하는지가 아직 논쟁 중인 자산입니다.<br><br>
-        위기 초반에는 <strong>위험자산처럼</strong> 주식과 함께 떨어지고,<br>
-        위기가 길어지면 <strong>대안자산처럼</strong> 금과 비슷하게 움직이는 경향이 있습니다.<br><br>
-        <strong>금(Gold)</strong>은 수천 년의 역사를 가진 전통 안전자산입니다.
-        <div class="info-quote">KRE 하락 + Gold 상승이 동시에 나타나면 → "은행은 무너지는데 돈은 금으로 도망간다"는 신호</div>
-        이 시나리오에서 금이 5,000달러대로 설정된 건 2008년형 극단적 위기를 가정한 수치입니다.
-      </div>
-      <div class="chart-wrap"><canvas id="chartBtcGold" height="100"></canvas></div>
-    </div>
-  </div>
-  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
-    <div class="chart-card">
-      <div class="chart-title">BTC vs VIX (시나리오 분석)</div>
-      <div class="chart-subtitle">공포 상승 시 BTC 반응 <span class="badge badge-sim">SIM</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-btcvix', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-btcvix">
-        시장 공포(VIX)가 높아질 때 BTC가 어떻게 반응하는지 보여줍니다.<br><br>
-        점들이 <strong>우하향</strong>이면 → VIX 오를수록 BTC 하락 → <strong>위험자산 성격</strong><br>
-        점들이 <strong>무작위</strong>로 흩어지면 → 상관없음 → <strong>독립적인 자산 성격</strong><br>
-        <div class="info-quote sim">⚠ 이 데이터는 시뮬레이션입니다. 실제 시장 반응과 다를 수 있습니다.</div>
-      </div>
-      <div class="chart-wrap"><canvas id="chartBtcVix" height="160"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Gold vs KRE (안전자산 vs 위험자산)</div>
-      <div class="chart-subtitle">은행위기 시 금 vs 지역은행 <span class="badge badge-sim">SIM</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-goldkre', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-goldkre">
-        KRE(지역은행)와 금이 반대 방향으로 움직이는지 확인합니다.<br><br>
-        점들이 <strong>좌상→우하</strong> 방향이면 → KRE 낮을 때 금 높다 → <strong>전형적인 위기 패턴</strong><br>
-        이 패턴이 강할수록 "자금이 위험자산에서 안전자산으로 이동하고 있다"는 신호입니다.
-      </div>
-      <div class="chart-wrap"><canvas id="chartGoldKre" height="160"></canvas></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── TAB 4: COINBASE PREMIUM ── -->
-<div class="tab-panel" id="tab-premium">
-  <div class="disclaimer" style="margin-top:0;margin-bottom:16px;">
-    <strong>⚠ SIMULATION DATA</strong> — Coinbase Premium (코인베이스 프리미엄)은 시뮬레이션 데이터입니다. 단위 혼재($ / %) 발생 — BTC 가격 기준으로 %로 환산하여 표시합니다.
-  </div>
-  <div class="chart-grid chart-grid-1">
-    <div class="chart-card">
-      <div class="chart-title">Coinbase Premium Index (% 환산)</div>
-      <div class="chart-subtitle">양수 = 미국 투자자 매수우위 / 음수 = 매도우위 (글로벌 대비) <span class="badge badge-sim">SIMULATION</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-cp', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-cp">
-        같은 BTC인데 미국 거래소 코인베이스에서 거래되는 가격이 해외 거래소보다 비싼지 싼지를 나타냅니다.<br><br>
-        <div class="signal-row">
-          <span class="signal-chip chip-green">양수(+) → 미국 투자자들이 BTC를 사고 있다</span>
-          <span class="signal-chip chip-red">음수(−) → 미국 투자자들이 BTC를 팔고 있다</span>
-        </div><br>
-        위기 시 미국 기관들이 BTC를 던지면 프리미엄이 급격히 마이너스로 떨어집니다.<br>
-        <strong>큰 마이너스가 지속</strong>되면 → 미국 기관의 리스크 오프 신호로 해석됩니다.
-      </div>
-      <div class="chart-wrap"><canvas id="chartCP" height="110"></canvas></div>
-    </div>
-  </div>
-  <div class="chart-grid chart-grid-2" style="margin-top:16px;">
-    <div class="chart-card">
-      <div class="chart-title">CP vs BTC 가격</div>
-      <div class="chart-subtitle">프리미엄과 BTC 가격 연동 여부 <span class="badge badge-sim">SIM</span></div>
-      <div class="chart-wrap"><canvas id="chartCpBtc" height="160"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Curve 3Pool USDT % 추이</div>
-      <div class="chart-subtitle">스테이블코인 풀 구성비 (시뮬레이션) <span class="badge badge-sim">SIM</span></div>
-      <button class="info-toggle" onclick="toggleInfo('info-curve', this)">▸ 이게 뭔데?</button>
-      <div class="info-box" id="info-curve">
-        Curve는 스테이블코인끼리 교환하는 DeFi 풀입니다. USDT·USDC·DAI 세 개를 담고 있으며, 정상적으로는 <strong>각각 33%씩</strong> 유지됩니다.<br><br>
-        <div class="info-quote">USDT 비율이 48%로 급등한 날(3월 2일) → 누군가 USDT를 집중적으로 팔고 USDC·DAI로 도망간 것</div>
-        스테이블코인 시장에서 특정 코인을 불신하기 시작할 때 나타납니다.<br>
-        2022년 LUNA 붕괴 때도 이런 패턴이 먼저 나타났습니다.
-        <div class="signal-row">
-          <span class="signal-chip chip-green">33% 근방 → 정상</span>
-          <span class="signal-chip chip-red">40% 이상 이탈 → 특정 스테이블코인 불신 신호</span>
+      <div class="chart-title">USD/KRW 달러환율 추이 (90일)</div>
+      <div class="chart-sub">원/달러 환율 <span class="badge b-live" id="badge-usdkrw">LIVE</span></div>
+      <button class="info-toggle" onclick="tgl('i-usdkrw',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-usdkrw">
+        <strong>달러/원 환율</strong>은 달러 1개를 사기 위해 원화가 얼마나 필요한지를 나타냅니다.<br>
+        <div class="iq">환율 상승 = 원화 약세 = 달러 강세 = 시장 불안심리 고조</div>
+        위기 때마다 투자자들은 안전자산인 달러로 도망칩니다. 환율이 급등한다면 그 신호입니다.<br>
+        한국 수출기업엔 호재지만, 수입물가 상승으로 인플레이션 압박이 커집니다.
+        <div class="sc-row">
+          <span class="sc sc-g">1,300원 이하 → 안정</span>
+          <span class="sc sc-o">1,400~1,500 → 경계</span>
+          <span class="sc sc-r">1,500원 이상 → 위기 수준</span>
         </div>
       </div>
-      <div class="chart-wrap"><canvas id="chartCurve" height="160"></canvas></div>
+      <canvas id="chartUsdkrw" height="90"></canvas>
     </div>
   </div>
-</div>
-
-<!-- ── TAB 5: CORRELATION ── -->
-<div class="tab-panel" id="tab-corr">
-  <div class="chart-grid chart-grid-2">
+  <div class="chart-grid g1" style="margin-top:10px">
     <div class="chart-card">
-      <div class="chart-title">상관관계 히트맵 (2026.02.11~03.19)</div>
-      <div class="chart-subtitle">피어슨 상관계수 | FACT 지표 기준 <span class="badge badge-fact">FACT</span></div>
-      <div class="corr-wrap">
-        <table class="corr-matrix" id="corrTable"></table>
+      <div class="chart-title">DXY 달러인덱스 추이 (90일)</div>
+      <div class="chart-sub">유로·엔·파운드·캐달러·스웨덴크로나·스위스프랑 대비 달러 강도 <span class="badge b-live" id="badge-dxy">LIVE</span></div>
+      <button class="info-toggle" onclick="tgl('i-dxy',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-dxy">
+        <strong>달러인덱스(DXY)</strong>는 6개 주요 통화 바스켓 대비 달러의 강도를 나타냅니다.<br>
+        기준값은 100입니다.<br><br>
+        <div class="iq">DXY↑ = 달러 강세 = 신흥국 자산 압박 + 원자재 가격 하락 압력</div>
+        <div class="iq">DXY↓ = 달러 약세 = 글로벌 위험선호 + 신흥국 자금 유입</div>
+        위기 시에는 역설적으로 DXY가 급등합니다 — 전 세계 투자자들이 달러 현금을 확보하려 하기 때문입니다.
+        <div class="sc-row">
+          <span class="sc sc-g">95~100 → 중립</span>
+          <span class="sc sc-o">105 이상 → 달러 강세 경계</span>
+          <span class="sc sc-r">110 이상 → 글로벌 유동성 위기 신호</span>
+        </div>
       </div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">주요 상관관계 분석</div>
-      <div class="chart-subtitle">KRE ↔ VIX / MOVE / Yield / BTC(SIM)</div>
-      <div class="chart-wrap"><canvas id="chartRadar" height="200"></canvas></div>
+      <canvas id="chartDxy" height="90"></canvas>
     </div>
   </div>
-  <div class="chart-grid chart-grid-1" style="margin-top:16px;">
+  <div class="chart-grid g2" style="margin-top:10px">
     <div class="chart-card">
-      <div class="chart-title">지표간 상관관계 해석</div>
-      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="corrInsights"></div>
+      <div class="chart-title">DXY vs VIX 산점도</div>
+      <div class="chart-sub">달러강세와 공포지수 관계</div>
+      <canvas id="chartDxyVix" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">USD/KRW vs KRE 산점도</div>
+      <div class="chart-sub">환율↑ → 지역은행↓ 패턴 확인</div>
+      <canvas id="chartKrwKre" height="160"></canvas>
     </div>
   </div>
 </div>
 
-<!-- ── TAB 6: 지표 해설 ── -->
-<div class="tab-panel" id="tab-guide">
+<!-- ══════════════════════════════════════
+     TAB 4: VVIX 분석
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-vvix">
+  <div class="chart-grid g1">
+    <div class="chart-card">
+      <div class="chart-title">VVIX 추이 (90일)</div>
+      <div class="chart-sub">VIX의 변동성 지수 <span class="badge b-live" id="badge-vvix">LIVE</span></div>
+      <button class="info-toggle" onclick="tgl('i-vvix',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-vvix">
+        <strong>VVIX</strong>는 VIX 자체의 변동성입니다. "공포의 공포지수"라고도 불립니다.<br>
+        <div class="iq">VVIX↑ = VIX가 앞으로 크게 움직일 것이라는 시장의 예상 → 패닉 임박 신호</div>
+        VIX는 이미 높아도 VVIX가 낮으면 "공포가 안정됐다"는 뜻.<br>
+        반대로 VIX는 아직 낮은데 VVIX가 급등하면 → <strong>공포 폭발 직전</strong>의 신호입니다.
+        <div class="sc-row">
+          <span class="sc sc-g">80~90 → 정상</span>
+          <span class="sc sc-o">100~120 → 경계</span>
+          <span class="sc sc-r">130 이상 → 극단 패닉</span>
+        </div>
+      </div>
+      <canvas id="chartVvix" height="90"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid g1" style="margin-top:10px">
+    <div class="chart-card">
+      <div class="chart-title">VVIX/VIX 비율 추이</div>
+      <div class="chart-sub">공포 배율 — 5 이상이면 극단적 패닉 임박</div>
+      <button class="info-toggle" onclick="tgl('i-ratio',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-ratio">
+        <strong>VVIX/VIX 비율</strong>은 VIX 대비 VVIX가 얼마나 과열됐는지를 보여줍니다.<br><br>
+        <div class="iq">비율이 높다 = 공포지수(VIX) 수준에 비해 변동성의 변동성(VVIX)이 훨씬 크다 = 시장이 공황 상태에 가까워지고 있다</div>
+        2020년 코로나 폭락, 2022년 금리충격 때 이 비율이 급등했습니다.<br>
+        <strong>5 이상</strong>이면 역사적으로 단기 바닥권 또는 추가 폭락의 갈림길이었습니다.
+        <div class="sc-row">
+          <span class="sc sc-g">3~4 → 정상 범위</span>
+          <span class="sc sc-o">4~5 → 경계</span>
+          <span class="sc sc-r">5 이상 → 극단 패닉 / 반등 또는 폭락 갈림길</span>
+        </div>
+      </div>
+      <canvas id="chartRatio" height="90"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid g2" style="margin-top:10px">
+    <div class="chart-card">
+      <div class="chart-title">VVIX vs VIX 산점도</div>
+      <div class="chart-sub">공포와 변동성 관계</div>
+      <canvas id="chartVvixVix" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">VVIX/VIX vs KRE 산점도</div>
+      <div class="chart-sub">패닉 배율과 은행주 관계</div>
+      <canvas id="chartRatioKre" height="160"></canvas>
+    </div>
+  </div>
+</div>
 
+<!-- ══════════════════════════════════════
+     TAB 5: BTC & GOLD
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-crypto">
+  <div id="crypto-status" class="disc"><strong id="csi">⏳ API 연결 중...</strong> — CoinGecko(BTC) 및 금 가격 API 로딩 중. 실패 시 SIM 전환.</div>
+  <div class="chart-grid g1">
+    <div class="chart-card">
+      <div class="chart-title">BTC vs Gold (90일)</div>
+      <div class="chart-sub">BTC (좌, $) / Gold (우, $) <span class="badge" id="badge-btcgold" style="background:rgba(255,74,74,0.12);color:var(--sim);border:1px solid rgba(255,74,74,0.25)">⚠ SIM</span></div>
+      <button class="info-toggle" onclick="tgl('i-btcgold',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-btcgold">
+        <strong>BTC</strong>는 위기 초반 위험자산처럼 하락, 장기화 시 대안자산처럼 반등하는 경향.<br>
+        <div class="iq">KRE↓ + Gold↑ 동시 = "은행은 무너지고 돈은 금으로 도망간다"</div>
+      </div>
+      <canvas id="chartBtcGold" height="90"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid g2" style="margin-top:10px">
+    <div class="chart-card">
+      <div class="chart-title">BTC vs VIX 산점도</div>
+      <div class="chart-sub">공포↑ 시 BTC 반응 <span class="badge b-sim">SIM</span></div>
+      <canvas id="chartBtcVix" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Gold vs KRE 산점도</div>
+      <div class="chart-sub">안전자산 vs 위험자산 <span class="badge b-sim">SIM</span></div>
+      <canvas id="chartGoldKre" height="160"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 6: COINBASE PREMIUM
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-premium">
+  <div class="disc"><strong>⚠ SIMULATION</strong> — Coinbase Premium 및 Curve 3Pool은 2008형 위기 시나리오 시뮬레이션 데이터입니다.</div>
+  <div class="chart-grid g1">
+    <div class="chart-card">
+      <div class="chart-title">Coinbase Premium Index</div>
+      <div class="chart-sub">양수=미국 매수우위 / 음수=매도우위 <span class="badge b-sim">SIM</span></div>
+      <button class="info-toggle" onclick="tgl('i-cp',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-cp">
+        코인베이스(미국) BTC 가격이 해외 거래소보다 비싼지 싼지.<br>
+        <div class="iq">음수 지속 → 미국 기관이 BTC를 팔고 있다 → 리스크 오프 신호</div>
+      </div>
+      <canvas id="chartCP" height="100"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid g2" style="margin-top:10px">
+    <div class="chart-card">
+      <div class="chart-title">CP vs BTC <span class="badge b-sim">SIM</span></div>
+      <canvas id="chartCpBtc" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Curve 3Pool USDT %</div>
+      <div class="chart-sub">정상=33% / 이탈=스테이블 불신 신호 <span class="badge b-sim">SIM</span></div>
+      <button class="info-toggle" onclick="tgl('i-curve',this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="i-curve">
+        USDT 비율이 33%에서 크게 벗어나면 특정 스테이블코인 불신 신호. 2022 LUNA 붕괴 전 선행 출현.
+        <div class="sc-row"><span class="sc sc-g">33% 근방=정상</span><span class="sc sc-r">40%+ 이탈=불신</span></div>
+      </div>
+      <canvas id="chartCurve" height="160"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 7: CORRELATION
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-corr">
+  <div class="chart-grid g2">
+    <div class="chart-card">
+      <div class="chart-title">상관관계 히트맵</div>
+      <div class="chart-sub">피어슨 상관계수 <span class="badge b-live">FACT</span></div>
+      <div style="overflow-x:auto"><table class="corr-matrix" id="corrTable"></table></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">KRE 기준 상관관계 레이더</div>
+      <canvas id="chartRadar" height="200"></canvas>
+    </div>
+  </div>
+  <div class="chart-grid g1" style="margin-top:10px">
+    <div class="chart-card">
+      <div class="chart-title">상관관계 해석 카드</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px" id="corrInsights"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 8: 지표 해설
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-guide">
   <div class="guide-grid">
 
-    <!-- KRE -->
-    <div class="guide-card gc-kre">
-      <div class="guide-label"><span style="color:var(--kre)">■</span> FACT 지표 · 지역은행 ETF</div>
-      <div class="guide-title" style="color:var(--kre)">KRE</div>
-      <div class="guide-body">
-        미국 중소형 지역은행들을 한 바구니에 묶은 ETF(상장지수펀드)입니다.<br><br>
-        2023년 실리콘밸리은행(SVB) 파산 때 하루 만에 20% 넘게 폭락했던 바로 그 섹터입니다.<br><br>
-        <strong>왜 이걸 보냐?</strong><br>
-        금융위기는 항상 JP모건 같은 대형 은행이 아니라, 자산 규모가 작고 규제가 느슨한 <strong>지역은행에서 먼저 터집니다.</strong> KRE 하락은 위기의 '전조'를 잡는 센서 역할을 합니다.
-        <div class="signal-row" style="margin-top:12px">
-          <span class="signal-chip chip-green">상승 → 은행 건전성 안정</span>
-          <span class="signal-chip chip-red">하락 → 위기 선행 신호</span>
-        </div>
-      </div>
+    <div class="gc gc-kre">
+      <div class="g-label">■ FACT · 지역은행 ETF</div>
+      <div class="g-title" style="color:var(--kre)">KRE</div>
+      <div class="g-body">미국 중소형 지역은행들을 한 바구니에 묶은 ETF. 2023년 SVB 파산 때 폭락했던 그 섹터입니다.<br><br>
+      <strong>왜 보나?</strong> 금융위기는 항상 지역은행에서 먼저 터집니다. KRE 하락은 위기의 '전조 센서'입니다.
+      <div class="sc-row"><span class="sc sc-g">상승=은행 건전</span><span class="sc sc-r">하락=위기 전조</span></div></div>
     </div>
 
-    <!-- VIX -->
-    <div class="guide-card gc-vix">
-      <div class="guide-label"><span style="color:var(--vix)">■</span> FACT 지표 · 주식시장 공포지수</div>
-      <div class="guide-title" style="color:var(--vix)">VIX</div>
-      <div class="guide-body">
-        S&P500 옵션 시장에서 계산되는 변동성 지수입니다.<br>
-        쉽게 말하면 <strong>"투자자들이 앞으로 한 달이 얼마나 무서운지"</strong>를 0~100 사이 숫자로 나타낸 것입니다.<br><br>
-        <table class="vix-table">
-          <tr><td><strong>수준</strong></td><td><strong>시장 분위기</strong></td></tr>
-          <tr><td><span class="hl-kre">15 이하</span></td><td>평온, 낙관</td></tr>
-          <tr><td><span style="color:var(--yield)">15 ~ 20</span></td><td>보통, 경계 시작</td></tr>
-          <tr><td><span class="hl-vix">20 ~ 30</span></td><td>불안, 경계</td></tr>
-          <tr><td><span style="color:var(--sim)">30 이상</span></td><td>공포, 패닉</td></tr>
-        </table><br>
-        현재 구간(24~29)은 <strong>'긴장'과 '공포' 사이</strong>에 위치합니다.
-      </div>
+    <div class="gc gc-vix">
+      <div class="g-label">■ FACT · 주식시장 공포지수</div>
+      <div class="g-title" style="color:var(--vix)">VIX</div>
+      <div class="g-body">S&P500 옵션 시장에서 계산되는 "투자자들이 앞으로 한 달이 얼마나 무서운지"의 수치화.
+      <table class="vt"><tr><td>수준</td><td>시장 분위기</td></tr><tr><td style="color:var(--kre)">15 이하</td><td>평온</td></tr><tr><td style="color:var(--yield)">15~20</td><td>보통</td></tr><tr><td style="color:var(--vix)">20~30</td><td>경계</td></tr><tr><td style="color:var(--sim)">30↑</td><td>패닉</td></tr></table></div>
     </div>
 
-    <!-- 10Y YIELD -->
-    <div class="guide-card gc-yield">
-      <div class="guide-label"><span style="color:var(--yield)">■</span> FACT 지표 · 미국 장기금리</div>
-      <div class="guide-title" style="color:var(--yield)">US 10Y Yield</div>
-      <div class="guide-body">
-        미국 정부가 10년짜리 빚을 빌릴 때 내는 이자율입니다.<br><br>
-        <strong>왜 이게 중요하냐?</strong><br>
-        전 세계 모든 자산의 가격은 이 숫자를 기준점으로 삼습니다. 주식, 부동산, 채권, 심지어 비트코인까지도요.<br><br>
-        금리 상승 → 돈의 값이 비싸진다 → 위험자산에서 자금이 빠져나간다<br>
-        금리 하락 → 돈이 풀린다 → 위험자산으로 자금이 몰린다<br><br>
-        현재 <strong>4.26%</strong>는 2020~2021년(0%대)에 비해 여전히 매우 높은 수준입니다.
-      </div>
+    <div class="gc gc-yield">
+      <div class="g-label">■ FACT · 미국 장기금리</div>
+      <div class="g-title" style="color:var(--yield)">US 10Y Yield</div>
+      <div class="g-body">미국 정부 10년 국채 이자율. 전 세계 모든 자산가격의 기준점.<br><br>
+      금리↑ → 돈값 비싸짐 → 위험자산 압박<br>금리↓ → 유동성 공급 → 위험자산 선호</div>
     </div>
 
-    <!-- MOVE -->
-    <div class="guide-card gc-move">
-      <div class="guide-label"><span style="color:var(--move)">■</span> FACT 지표 · 채권시장 공포지수</div>
-      <div class="guide-title" style="color:var(--move)">MOVE</div>
-      <div class="guide-body">
-        VIX가 주식시장의 공포지수라면, MOVE는 <strong>채권시장의 공포지수</strong>입니다.<br>
-        채권 금리가 앞으로 얼마나 요동칠지를 나타냅니다.<br><br>
-        MOVE가 높다 = 채권 투자자들도 방향을 모르겠다 = <strong>시스템 전반이 불안정</strong><br><br>
-        <strong>핵심 신호:</strong><br>
-        VIX와 MOVE가 <strong>동시에 오를 때</strong>가 가장 위험합니다. 주식도, 채권도, 모두 흔들린다는 뜻이기 때문입니다. 이 구간에서 2월 초 MOVE가 112까지 치솟았던 게 바로 그 신호였습니다.
-        <div class="signal-row" style="margin-top:12px">
-          <span class="signal-chip chip-green">100 이하 → 정상</span>
-          <span class="signal-chip chip-red">100 이상 → 채권시장 혼란</span>
-        </div>
-      </div>
+    <div class="gc gc-move">
+      <div class="g-label">■ FACT · 채권시장 공포지수</div>
+      <div class="g-title" style="color:var(--move)">MOVE</div>
+      <div class="g-body">채권시장의 VIX. 채권 금리가 얼마나 요동칠지를 나타냄.<br><br>
+      <strong>핵심:</strong> VIX + MOVE 동시 급등 = 주식·채권 모두 흔들림 = 시스템 전체 위기 신호.
+      <div class="sc-row"><span class="sc sc-g">100 이하=정상</span><span class="sc sc-r">100+=채권 혼란</span></div></div>
     </div>
 
-    <!-- BTC -->
-    <div class="guide-card gc-btc">
-      <div class="guide-label"><span style="color:var(--btc)">■</span> ⚠ 시뮬레이션 · 암호화폐</div>
-      <div class="guide-title" style="color:var(--btc)">Bitcoin (BTC)</div>
-      <div class="guide-body">
-        위기 시나리오에서 BTC가 어떻게 움직이는지 테스트한 <strong>가상 데이터</strong>입니다.<br><br>
-        실제로 BTC는 위기 때 어디로 가야 할지 시장의 합의가 아직 없습니다.<br><br>
-        <strong>위기 초반</strong> → 주식처럼 같이 떨어지는 경향 (위험자산 성격)<br>
-        <strong>위기 장기화</strong> → 금처럼 오르는 경향 (대안자산 성격)<br><br>
-        이 대시보드에서는 BTC가 은행 위기와 얼마나 연동되는지를 테스트하는 용도로 사용합니다.
-        <div class="signal-row" style="margin-top:12px">
-          <span class="signal-chip chip-yellow">⚠ 실제 시장 데이터 아님</span>
-        </div>
-      </div>
+    <div class="gc gc-usdkrw">
+      <div class="g-label">■ FACT · 원달러 환율</div>
+      <div class="g-title" style="color:var(--usdkrw)">USD/KRW</div>
+      <div class="g-body">달러 1개를 사는 데 필요한 원화 금액.<br><br>
+      위기 때마다 투자자들은 달러로 도망칩니다. 환율 급등은 그 신호입니다.<br><br>
+      한국 수출기업엔 단기 호재지만, 수입물가·인플레이션 압박이 따릅니다.
+      <div class="sc-row"><span class="sc sc-g">~1,300=안정</span><span class="sc sc-o">1,400~=경계</span><span class="sc sc-r">1,500+=위기</span></div></div>
     </div>
 
-    <!-- GOLD -->
-    <div class="guide-card gc-gold">
-      <div class="guide-label"><span style="color:var(--gold)">■</span> ⚠ 시뮬레이션 · 안전자산</div>
-      <div class="guide-title" style="color:var(--gold)">Gold (금)</div>
-      <div class="guide-body">
-        수천 년의 역사를 가진 전통 안전자산입니다.<br><br>
-        은행이 무너질 것 같을 때 사람들은 본능적으로 금을 삽니다.<br><br>
-        <strong>KRE 하락 + Gold 상승</strong>이 동시에 나타나면 → <em>"지역은행은 위험한데, 돈은 금으로 도망가고 있다"</em>는 신호입니다.<br><br>
-        이 시나리오에서 금 5,000달러대는 2008년형 극단적 위기를 가정한 수치로, 실제 가격과 다릅니다.
-        <div class="signal-row" style="margin-top:12px">
-          <span class="signal-chip chip-yellow">⚠ 실제 시장 데이터 아님</span>
-        </div>
-      </div>
+    <div class="gc gc-dxy">
+      <div class="g-label">■ FACT · 달러 강도 지수</div>
+      <div class="g-title" style="color:var(--dxy)">DXY</div>
+      <div class="g-body">유로·엔·파운드 등 6개 주요통화 대비 달러 강도. 기준값 100.<br><br>
+      DXY↑ = 달러 강세 = 신흥국 자산 압박 + 원자재 하락 압력<br>
+      DXY↓ = 달러 약세 = 글로벌 위험선호 + 신흥국 자금 유입<br><br>
+      위기 시 역설적으로 DXY 급등 — 전 세계가 달러 현금을 확보하려 하기 때문.
+      <div class="sc-row"><span class="sc sc-g">95~100=중립</span><span class="sc sc-o">105+=경계</span><span class="sc sc-r">110+=위기</span></div></div>
     </div>
 
-    <!-- COINBASE PREMIUM -->
-    <div class="guide-card gc-cp">
-      <div class="guide-label"><span style="color:var(--cp)">■</span> ⚠ 시뮬레이션 · 온체인 지표</div>
-      <div class="guide-title" style="color:var(--cp)">Coinbase Premium</div>
-      <div class="guide-body">
-        같은 BTC인데 미국 거래소 코인베이스의 가격이 해외 거래소보다 비싼지 싼지를 나타냅니다.<br><br>
-        <strong>양수(+)</strong> → 미국 투자자들이 BTC를 사고 있다<br>
-        <strong>음수(−)</strong> → 미국 투자자들이 BTC를 팔고 있다 (위험 회피)<br><br>
-        위기 시 미국 기관들이 BTC를 대규모로 던지면 프리미엄이 급격히 마이너스로 떨어집니다. 큰 마이너스가 지속된다면 미국 자금의 리스크 오프 신호로 해석됩니다.
-        <div class="signal-row" style="margin-top:12px">
-          <span class="signal-chip chip-yellow">⚠ 실제 시장 데이터 아님</span>
-        </div>
-      </div>
+    <div class="gc gc-vvix">
+      <div class="g-label">■ FACT · 변동성의 변동성</div>
+      <div class="g-title" style="color:var(--vvix)">VVIX</div>
+      <div class="g-body">"공포의 공포지수". VIX 자체가 얼마나 요동칠지를 나타냄.<br><br>
+      VIX↑ + VVIX↑ → 공포가 폭발적으로 확산 중<br>
+      VIX↓ + VVIX↑ → 표면은 조용하지만 공포 폭발 직전 (선행 신호!)
+      <div class="sc-row"><span class="sc sc-g">80~90=정상</span><span class="sc sc-o">100~120=경계</span><span class="sc sc-r">130+=극단 패닉</span></div></div>
     </div>
 
-    <!-- CURVE -->
-    <div class="guide-card gc-curve">
-      <div class="guide-label"><span style="color:#60a5fa">■</span> ⚠ 시뮬레이션 · DeFi 스트레스 지표</div>
-      <div class="guide-title" style="color:#60a5fa">Curve 3Pool USDT %</div>
-      <div class="guide-body">
-        Curve는 스테이블코인끼리 교환하는 DeFi(탈중앙화 금융) 풀입니다.<br>
-        3Pool은 USDT·USDC·DAI 세 가지를 담고 있으며, 정상적으로는 각각 <strong>33%씩</strong> 유지됩니다.<br><br>
-        <strong>이상 신호:</strong><br>
-        USDT 비율이 갑자기 48%로 튀었다 = 누군가 USDT를 집중적으로 팔고 USDC·DAI로 갈아탔다는 뜻입니다.<br><br>
-        스테이블코인 시장에서 특정 코인을 불신하기 시작할 때 나타나는 패턴입니다. 2022년 LUNA 붕괴 때 이런 신호가 먼저 나타났습니다.
-        <div class="signal-row" style="margin-top:12px">
-          <span class="signal-chip chip-green">33% 근방 → 정상</span>
-          <span class="signal-chip chip-red">40% 이상 → 불신 신호</span>
-          <span class="signal-chip chip-yellow">⚠ 시뮬레이션</span>
-        </div>
-      </div>
+    <div class="gc gc-ratio">
+      <div class="g-label">■ 계산 지표 · 공포 배율</div>
+      <div class="g-title" style="color:var(--ratio)">VVIX / VIX</div>
+      <div class="g-body">VIX 대비 VVIX의 과열 정도.<br><br>
+      비율이 높다 = 공포지수보다 변동성의 변동성이 훨씬 크다 = 시장이 공황에 가까워지고 있다<br><br>
+      2020 코로나, 2022 금리충격 때 이 비율이 급등했고, 역사적으로 단기 바닥권 또는 추가 폭락의 갈림길이었습니다.
+      <div class="sc-row"><span class="sc sc-g">3~4=정상</span><span class="sc sc-o">4~5=경계</span><span class="sc sc-r">5+=극단 패닉</span></div></div>
+    </div>
+
+    <div class="gc gc-btc">
+      <div class="g-label">■ LIVE · 암호화폐</div>
+      <div class="g-title" style="color:var(--btc)">Bitcoin (BTC)</div>
+      <div class="g-body">위기 초반엔 위험자산처럼 하락, 장기화 시 대안자산처럼 반등하는 경향. 시장 합의 미형성 자산.
+      <div class="sc-row"><span class="sc sc-y">위기초반=위험자산</span><span class="sc sc-g">장기화=대안자산</span></div></div>
+    </div>
+
+    <div class="gc gc-gold">
+      <div class="g-label">■ LIVE · 전통 안전자산</div>
+      <div class="g-title" style="color:var(--gold)">Gold (금)</div>
+      <div class="g-body">수천 년의 안전자산. 위기 시 자금 도피처.<br><br>
+      KRE↓ + Gold↑ 동시 출현 = "지역은행 붕괴 + 금으로 자금 이동" 가장 강력한 위기 신호.
+      <div class="sc-row"><span class="sc sc-g">KRE·Gold 동반↑=위험선호</span><span class="sc sc-r">KRE↓+Gold↑=위기</span></div></div>
+    </div>
+
+    <div class="gc gc-cp">
+      <div class="g-label">■ ⚠ 시뮬레이션</div>
+      <div class="g-title" style="color:var(--cp)">Coinbase Premium</div>
+      <div class="g-body">코인베이스(미국) BTC 가격이 해외 거래소보다 비싼지 싼지.<br>
+      음수 지속 = 미국 기관의 리스크 오프 신호.
+      <div class="sc-row"><span class="sc sc-y">⚠ 시뮬레이션 데이터</span></div></div>
+    </div>
+
+    <div class="gc gc-curve">
+      <div class="g-label">■ ⚠ 시뮬레이션</div>
+      <div class="g-title" style="color:#60a5fa">Curve 3Pool USDT%</div>
+      <div class="g-body">USDT:USDC:DAI = 정상 33:33:33. USDT 비율 급등 = 특정 스테이블코인 불신. 2022 LUNA 붕괴 전 선행 출현.
+      <div class="sc-row"><span class="sc sc-g">33%=정상</span><span class="sc sc-r">40%+=불신 신호</span><span class="sc sc-y">⚠ 시뮬레이션</span></div></div>
     </div>
 
   </div>
 
-  <!-- 종합 요약 -->
-  <div class="guide-summary">
-    <div class="guide-summary-title">📌 이 대시보드를 한 줄로 요약하면</div>
-    <div class="guide-summary-body">
-      <strong>KRE(은행 건전성)</strong> + <strong>VIX·MOVE(공포 수준)</strong> + <strong>10Y Yield(유동성 비용)</strong>를 한눈에 보면서,<br>
-      <em>"지금 금융시스템이 얼마나 스트레스를 받고 있는가"</em>를 측정하는 대시보드입니다.<br><br>
-      BTC·Gold·Coinbase Premium은 그 위기가 현실화됐을 때 <strong>자금이 어디로 이동하는지</strong>를 추적하는 보조 지표입니다.<br><br>
-      <strong>주의 :</strong> BTC·Gold·CP·Curve 데이터는 2008년형 금융위기 스트레스 시나리오 시뮬레이션으로, 실제 시장 데이터가 아닙니다. KRE·VIX·10Y·MOVE만 실제 팩트 데이터입니다.
+  <div class="g-summary">
+    <div class="g-sum-title">📌 이 대시보드를 한 줄로</div>
+    <div class="g-sum-body">
+      <strong>FACT 8종</strong> (KRE·VIX·MOVE·10Y금리·USD/KRW·DXY·VVIX·VVIX/VIX) + <strong>LIVE 2종</strong> (BTC·Gold) + <strong>SIM 2종</strong> (CP·Curve)으로<br>
+      <em>"지금 금융시스템이 얼마나 스트레스를 받고 있는가, 자금은 어디로 이동하는가"</em>를 종합 모니터링합니다.<br><br>
+      매일 <strong>오전 6:30 KST</strong>에 데이터가 자동 갱신됩니다.
     </div>
   </div>
-
 </div>
 
 </main>
 
+<div class="footer" id="footerNote">자본주의 생존일지 · 자산관리사 김병철 AFPK | FACT 지표는 하드코딩 데이터 | LIVE 지표 API 연결 중...</div>
+
 <script>
-// ─────────────────────────────────────────────
-//  DATA
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  STATIC DATA (Feb 11 ~ Mar 19 2026 — FACT)
+// ═══════════════════════════════════════════════
+const mainDates=['02.11','02.12','02.13','02.16','02.17','02.18','02.19','02.23','02.24','02.25','02.26','02.27','03.02','03.03','03.04','03.05','03.09','03.10','03.11','03.12','03.13','03.16','03.17','03.18','03.19'];
+const mainKRE  =[72.18,71.50,73.05,73.05,71.28,72.04,70.99,68.74,68.67,69.87,70.39,70.38,67.76,67.30,66.52,66.60,64.75,64.72,63.98,62.92,63.11,62.88,63.45,62.62,63.19];
+const mainVIX  =[17.92,17.85,16.52,16.35,18.45,20.15,20.23,21.01,21.06,17.93,17.77,20.16,21.44,23.57,24.12,23.75,24.92,23.60,24.23,25.14,27.19,29.45,22.37,25.09,24.06];
+const mainYield=[4.18,4.18,4.24,4.25,4.25,4.07,4.09,4.08,4.03,4.05,4.05,3.97,4.04,4.10,4.16,4.15,4.13,4.12,4.19,4.29,4.28,4.32,4.20,4.25,4.26];
+const mainMOVE =[108.50,107.80,112.40,111.80,70.10,68.84,64.18,64.27,68.03,65.27,62.43,63.93,73.38,73.21,75.48,70.03,81.26,79.74,76.33,82.45,95.30,98.15,85.25,79.23,81.25];
 
-// Historical estimates (weekly, Dec 2025 ~ Feb 10 2026)
-// Source: Investing.com KRE Dec-Jan avg $66.73 range $64.06-68.67
-//         SPGlobal: VIX spiked above 20 on Jan 20, then ~17
-//         Advisor Perspectives: 10Y end-Dec 2025 = 4.16% weekly avg
-const histDates  = ['25.12.01','25.12.08','25.12.15','25.12.22','25.12.29','26.01.05','26.01.12','26.01.20','26.01.26','26.02.02','26.02.09'];
-const histKRE    = [65.5, 66.2, 67.8, 68.0, 67.5, 66.8, 67.3, 68.5, 70.2, 71.5, 72.0];
-const histVIX    = [14.2, 13.8, 15.5, 16.8, 15.5, 16.2, 16.5, 20.5, 17.8, 17.5, 17.2];
-const histYield  = [4.22, 4.18, 4.32, 4.25, 4.16, 4.20, 4.24, 4.18, 4.15, 4.18, 4.17];
+// Historical estimates (Dec 2025 ~ Feb 10 2026 weekly)
+const histDates=['25.12.01','25.12.08','25.12.15','25.12.22','25.12.29','26.01.05','26.01.12','26.01.20','26.01.26','26.02.02','26.02.09'];
+const histKRE  =[65.5,66.2,67.8,68.0,67.5,66.8,67.3,68.5,70.2,71.5,72.0];
+const histVIX  =[14.2,13.8,15.5,16.8,15.5,16.2,16.5,20.5,17.8,17.5,17.2];
+const histYield=[4.22,4.18,4.32,4.25,4.16,4.20,4.24,4.18,4.15,4.18,4.17];
+const splitIdx = histDates.length;
+const allDates =[...histDates,...mainDates];
+const allKRE   =[...histKRE,...mainKRE];
+const allVIX   =[...histVIX,...mainVIX];
+const allYield =[...histYield,...mainYield];
+const allMove  =[...Array(splitIdx).fill(null),...mainMOVE];
 
-// Provided dataset (daily, Feb 11 ~ Mar 19 2026) ── FACT for KRE/VIX/Yield/MOVE
-const mainDates = ['02.11','02.12','02.13','02.16','02.17','02.18','02.19','02.23','02.24','02.25','02.26','02.27',
-                   '03.02','03.03','03.04','03.05','03.09','03.10','03.11','03.12','03.13','03.16','03.17','03.18','03.19'];
-const mainKRE   = [72.18,71.50,73.05,73.05,71.28,72.04,70.99,68.74,68.67,69.87,70.39,70.38,67.76,67.30,66.52,66.60,64.75,64.72,63.98,62.92,63.11,62.88,63.45,62.62,63.19];
-const mainVIX   = [17.92,17.85,16.52,16.35,18.45,20.15,20.23,21.01,21.06,17.93,17.77,20.16,21.44,23.57,24.12,23.75,24.92,23.60,24.23,25.14,27.19,29.45,22.37,25.09,24.06];
-const mainYield = [4.18,4.18,4.24,4.25,4.25,4.07,4.09,4.08,4.03,4.05,4.05,3.97,4.04,4.10,4.16,4.15,4.13,4.12,4.19,4.29,4.28,4.32,4.20,4.25,4.26];
-const mainMOVE  = [108.50,107.80,112.40,111.80,70.10,68.84,64.18,64.27,68.03,65.27,62.43,63.93,73.38,73.21,75.48,70.03,81.26,79.74,76.33,82.45,95.30,98.15,85.25,79.23,81.25];
+// SIM data
+const mainBTC  =[null,null,null,null,null,70000,66900,66000,57000,66000,68000,65000,58000,56750,55800,71840,66500,66400,70000,68200,73015,64800,74830,66700,72000];
+const mainGold =[null,null,null,null,null,4990,5002,5228,5153,5150,5153,5252,5342,5087,5112,5115,6000,5300,5100,5120,5100,5450,4997,4880,5400];
+const mainCurve=[33.8,34.2,33.2,33.1,33.4,33.8,33.3,33.8,33.8,33.8,33.3,33.3,48.9,33.8,34.1,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3];
+const cpRaw=['+0.02%','-0.062%','+0.015%','+0.008%','-$167.80','-$148.50','-$167.80','-0.0477%','-$167.80','-0.0467%','+0.0525%','+0.0525%','-$148.50','+$10.18','-$8.45','+$61.00','+0.01%','-0.0049%','-0.0049%','-0.0125%','+$61.00','-$45.20','+$12.50','+$25.40','+$35.40'];
+function parseCPNorm(s,b){if(!s)return null;s=s.trim();const sg=s.startsWith('-')?-1:1;const c=s.replace(/[+\-$%]/g,'');const v=parseFloat(c)*sg;if(s.includes('%'))return v;if(b&&b>0)return(v/b)*100;return null;}
+const mainCPFull=cpRaw.map((r,i)=>{if(!r)return null;if(r.includes('%')){const sg=r.startsWith('-')?-1:1;return parseFloat(r.replace(/[+\-$%]/g,''))*sg;}return parseCPNorm(r,mainBTC[i]);});
 
-// SIM data — BTC & Gold (null where missing)
-const mainBTC  = [null,null,null,null,null,70000,66900,66000,57000,66000,68000,65000,58000,56750,55800,71840,66500,66400,70000,68200,73015,64800,74830,66700,72000];
-const mainGold = [null,null,null,null,null,4990,5002,5228,5153,5150,5153,5252,5342,5087,5112,5115,6000,5300,5100,5120,5100,5450,4997,4880,5400];
+// Live data state
+let liveData = {
+  usdkrw:{dates:[],vals:[]},
+  dxy:{dates:[],vals:[]},
+  vvix:{dates:[],vals:[]},
+  btc:{dates:[],vals:[]},
+  gold:{dates:[],vals:[]},
+  loaded:false
+};
 
-// Curve 3Pool USDT %
-const mainCurve = [33.8,34.2,33.2,33.1,33.4,33.8,33.3,33.8,33.8,33.8,33.3,33.3,48.9,33.8,34.1,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3,33.3];
-
-// Coinbase Premium raw data — mixed $ and % strings, normalize to %
-const cpRaw = ['+0.02%','-0.062%','+0.015%','+0.008%','-$167.80','-$148.50','-$167.80','-0.0477%','-$167.80','-0.0467%','+0.0525%','+0.0525%',
-               '-$148.50','+$10.18','-$8.45','+$61.00','+0.01%','-0.0049%','-0.0049%','-0.0125%','+$61.00','-$45.20','+$12.50','+$25.40','+$35.40'];
-
-function parseCPNorm(str, btc) {
-  if (!str) return null;
-  str = str.trim();
-  const sign = str.startsWith('-') ? -1 : 1;
-  const clean = str.replace(/[+\-$%]/g,'');
-  const val = parseFloat(clean) * sign;
-  if (str.includes('%')) return val;
-  if (btc && btc > 0) return (val / btc) * 100;
-  return null;
-}
-const mainCP = mainBTC.map((b, i) => parseCPNorm(cpRaw[i], b));
-// For dates with no BTC but % value — re-parse those
-const mainCPFull = cpRaw.map((r, i) => {
-  if (!r) return null;
-  if (r.includes('%')) {
-    const sign = r.startsWith('-') ? -1 : 1;
-    const val = parseFloat(r.replace(/[+\-$%]/g,'')) * sign;
-    return val;
-  }
-  return mainCP[i];
-});
-
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════
 //  CHART DEFAULTS
-// ─────────────────────────────────────────────
-
-Chart.defaults.color = '#4a6580';
-Chart.defaults.font.family = "'IBM Plex Mono', monospace";
-Chart.defaults.font.size = 10;
-
-const GRID = { color: 'rgba(26,36,56,0.8)', lineWidth: 0.5 };
-const TICK = { color: '#3f5e7a', font: { size: 9 } };
-
-function baseOptions(y1label, y2label) {
-  return {
-    responsive: true,
-    maintainAspectRatio: true,
-    animation: { duration: 600, easing: 'easeInOutQuart' },
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: { display: true, position: 'top', align: 'end',
-        labels: { boxWidth: 8, boxHeight: 8, padding: 14, color: '#6e9abf', font: { size: 9 } }
-      },
-      tooltip: {
-        backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1,
-        titleColor: '#8ab4d8', bodyColor: '#cde0f5',
-        padding: 10, titleFont: { size: 9 }, bodyFont: { size: 10 }
-      }
-    },
-    scales: {
-      x: { grid: GRID, ticks: { ...TICK, maxRotation: 45 } },
-      y: { grid: GRID, ticks: TICK, position: 'left', title: y1label ? { display: true, text: y1label, color: '#3f5e7a', font: { size: 9 } } : undefined },
-      ...(y2label ? { y2: { grid: { display: false }, ticks: TICK, position: 'right', title: { display: true, text: y2label, color: '#3f5e7a', font: { size: 9 } } } } : {})
-    }
-  };
+// ═══════════════════════════════════════════════
+Chart.defaults.color='#4a6580';
+Chart.defaults.font.family="'IBM Plex Mono',monospace";
+Chart.defaults.font.size=12;
+const GRID={color:'rgba(26,36,56,0.8)',lineWidth:0.5};
+const TICK={color:'#3f5e7a',font:{size:11}};
+function baseOpts(y1,y2){
+  return{responsive:true,maintainAspectRatio:true,animation:{duration:500},interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:true,position:'top',align:'end',labels:{boxWidth:8,boxHeight:8,padding:12,color:'#6e9abf',font:{size:11}}},
+      tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},
+    scales:{
+      x:{grid:GRID,ticks:{...TICK,maxRotation:45}},
+      y:{grid:GRID,ticks:TICK,position:'left',title:y1?{display:true,text:y1,color:'#3f5e7a',font:{size:11}}:undefined},
+      ...(y2?{y2:{grid:{display:false},ticks:TICK,position:'right',title:{display:true,text:y2,color:'#3f5e7a',font:{size:11}}}}:{})
+    }};
+}
+function scatterOpts(xl,yl){
+  return{responsive:true,plugins:{legend:{display:false},
+    tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},
+    scales:{x:{grid:GRID,ticks:TICK,title:{display:true,text:xl,color:'#3f5e7a',font:{size:11}}},
+      y:{grid:GRID,ticks:TICK,title:{display:true,text:yl,color:'#3f5e7a',font:{size:11}}}}};
 }
 
-// ─────────────────────────────────────────────
-//  CHART 1 — KRE + VIX OVERVIEW
-// ─────────────────────────────────────────────
-
-const allDatesOv   = [...histDates, ...mainDates];
-const allKRE       = [...histKRE, ...mainKRE];
-const allVIX       = [...histVIX, ...mainVIX];
-const splitIdx     = histDates.length; // index where provided data begins
-
-function makeSegmented(fullArr, splitIdx) {
-  return {
-    estPart:  fullArr.slice(0, splitIdx + 1).map((v, i) => (i < splitIdx ? v : v)),
-    factPart: [null, ...Array(splitIdx - 1).fill(null), fullArr[splitIdx - 1], ...fullArr.slice(splitIdx)]
-  };
-}
-// Actually simpler — just use borderDash for first segment via segment callback
-const kreEst  = allKRE.map((v, i) => i < splitIdx ? v : null);
-const kreFact = allKRE.map((v, i) => i >= splitIdx - 1 ? v : null); // overlap at boundary
-const vixEst  = allVIX.map((v, i) => i < splitIdx ? v : null);
-const vixFact = allVIX.map((v, i) => i >= splitIdx - 1 ? v : null);
-
-const ctxOv = document.getElementById('chartOverview').getContext('2d');
-new Chart(ctxOv, {
-  type: 'line',
-  data: {
-    labels: allDatesOv,
-    datasets: [
-      { label: 'KRE (est.)', data: kreEst, borderColor: 'rgba(34,217,133,0.35)', borderWidth: 1.5, borderDash: [4,3], pointRadius: 2, pointBackgroundColor: 'rgba(34,217,133,0.4)', tension: 0.3, yAxisID: 'y', spanGaps: false },
-      { label: 'KRE', data: kreFact, borderColor: '#22d985', borderWidth: 2.5, pointRadius: 2.5, pointBackgroundColor: '#22d985', tension: 0.2, yAxisID: 'y', spanGaps: false },
-      { label: 'VIX (est.)', data: vixEst, borderColor: 'rgba(255,107,53,0.3)', borderWidth: 1.5, borderDash: [4,3], pointRadius: 2, pointBackgroundColor: 'rgba(255,107,53,0.4)', tension: 0.3, yAxisID: 'y2', spanGaps: false },
-      { label: 'VIX', data: vixFact, borderColor: '#ff6b35', borderWidth: 2, pointRadius: 2.5, pointBackgroundColor: '#ff6b35', tension: 0.2, yAxisID: 'y2', spanGaps: false }
-    ]
-  },
-  options: {
-    ...baseOptions('KRE ($)', 'VIX'),
-    plugins: {
-      ...baseOptions().plugins,
-      annotation: {},
-      tooltip: {
-        backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1,
-        titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10,
-        titleFont: { size: 9 }, bodyFont: { size: 10 }
-      },
-      legend: {
-        display: true, position: 'top', align: 'end',
-        labels: { boxWidth: 8, boxHeight: 8, padding: 12, color: '#6e9abf', font: { size: 9 } }
-      }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 2 — KRE Return (normalized)
-// ─────────────────────────────────────────────
-const base = mainKRE[0];
-const kreRet = mainKRE.map(v => +((v / base - 1) * 100).toFixed(2));
-const kreColors = kreRet.map(v => v >= 0 ? 'rgba(34,217,133,0.7)' : 'rgba(255,74,74,0.7)');
-
-const ctx2 = document.getElementById('chartKreReturn').getContext('2d');
-new Chart(ctx2, {
-  type: 'bar',
-  data: {
-    labels: mainDates,
-    datasets: [{ label: 'KRE 수익률 (%)', data: kreRet, backgroundColor: kreColors, borderRadius: 2 }]
-  },
-  options: {
-    ...baseOptions('수익률 (%)'),
-    plugins: {
-      legend: { display: false },
-      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
-    },
-    scales: {
-      x: { grid: GRID, ticks: { ...TICK, maxRotation: 60 } },
-      y: { grid: GRID, ticks: TICK }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 3 — VIX Distribution
-// ─────────────────────────────────────────────
-const vixBuckets = { '15-18': 0, '18-21': 0, '21-24': 0, '24-27': 0, '27-30': 0 };
-mainVIX.forEach(v => {
-  if (v < 18) vixBuckets['15-18']++;
-  else if (v < 21) vixBuckets['18-21']++;
-  else if (v < 24) vixBuckets['21-24']++;
-  else if (v < 27) vixBuckets['24-27']++;
-  else vixBuckets['27-30']++;
-});
-const ctx3 = document.getElementById('chartVixDist').getContext('2d');
-new Chart(ctx3, {
-  type: 'bar',
-  data: {
-    labels: Object.keys(vixBuckets),
-    datasets: [{ label: '거래일 수', data: Object.values(vixBuckets), backgroundColor: ['rgba(255,107,53,0.5)','rgba(255,107,53,0.65)','rgba(255,107,53,0.75)','rgba(255,107,53,0.85)','rgba(255,74,74,0.9)'], borderRadius: 3 }]
-  },
-  options: {
-    ...baseOptions('거래일 수'),
-    plugins: {
-      legend: { display: false },
-      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
-    },
-    scales: {
-      x: { grid: GRID, ticks: TICK },
-      y: { grid: GRID, ticks: { ...TICK, stepSize: 1 } }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 4 — Yield + MOVE
-// ─────────────────────────────────────────────
-const allDatesYM  = [...histDates, ...mainDates];
-const histMove    = [null,null,null,null,null,null,null,null,null,null,null]; // MOVE not available pre-period
-const allYield    = [...histYield, ...mainYield];
-const allMove     = [...histMove, ...mainMOVE];
-const yieldEst    = allYield.map((v, i) => i < splitIdx ? v : null);
-const yieldFact   = allYield.map((v, i) => i >= splitIdx - 1 ? v : null);
-const moveArr     = allMove;
-
-const ctx4 = document.getElementById('chartYieldMove').getContext('2d');
-new Chart(ctx4, {
-  type: 'line',
-  data: {
-    labels: allDatesYM,
-    datasets: [
-      { label: '10Y Yield % (est.)', data: yieldEst, borderColor: 'rgba(79,168,255,0.35)', borderWidth: 1.5, borderDash: [4,3], pointRadius: 1.5, tension: 0.3, yAxisID: 'y', spanGaps: false },
-      { label: '10Y Yield %', data: yieldFact, borderColor: '#4fa8ff', borderWidth: 2.5, pointRadius: 2.5, pointBackgroundColor: '#4fa8ff', tension: 0.2, yAxisID: 'y', spanGaps: false },
-      { label: 'MOVE Index', data: moveArr, borderColor: '#c07af6', borderWidth: 2, pointRadius: 2, pointBackgroundColor: '#c07af6', tension: 0.2, yAxisID: 'y2', spanGaps: true }
-    ]
-  },
-  options: { ...baseOptions('Yield (%)', 'MOVE (pt)') }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 5 — KRE vs Yield scatter
-// ─────────────────────────────────────────────
-const ctx5 = document.getElementById('chartScatterKreYield').getContext('2d');
-const scatterKY = mainKRE.map((kre, i) => ({ x: mainYield[i], y: kre }));
-new Chart(ctx5, {
-  type: 'scatter',
-  data: {
-    datasets: [{ label: 'KRE vs 10Y', data: scatterKY, backgroundColor: 'rgba(34,217,133,0.6)', pointRadius: 5 }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
-    scales: {
-      x: { grid: GRID, ticks: TICK, title: { display: true, text: '10Y Yield (%)', color: '#3f5e7a', font: { size: 9 } } },
-      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'KRE ($)', color: '#3f5e7a', font: { size: 9 } } }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 6 — VIX vs MOVE scatter
-// ─────────────────────────────────────────────
-const ctx6 = document.getElementById('chartScatterVixMove').getContext('2d');
-const scatterVM = mainVIX.map((v, i) => ({ x: v, y: mainMOVE[i] }));
-new Chart(ctx6, {
-  type: 'scatter',
-  data: {
-    datasets: [{ label: 'VIX vs MOVE', data: scatterVM, backgroundColor: 'rgba(192,122,246,0.6)', pointRadius: 5 }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
-    scales: {
-      x: { grid: GRID, ticks: TICK, title: { display: true, text: 'VIX', color: '#3f5e7a', font: { size: 9 } } },
-      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'MOVE', color: '#3f5e7a', font: { size: 9 } } }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 7 — BTC + Gold
-// ─────────────────────────────────────────────
-const btcDates = mainDates.filter((_, i) => mainBTC[i] !== null);
-const btcVals  = mainBTC.filter(v => v !== null);
-const goldVals = mainGold.filter(v => v !== null);
-
-const ctx7 = document.getElementById('chartBtcGold').getContext('2d');
-new Chart(ctx7, {
-  type: 'line',
-  data: {
-    labels: btcDates,
-    datasets: [
-      { label: 'BTC ($)', data: btcVals, borderColor: '#ffb400', borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#ffb400', tension: 0.25, yAxisID: 'y', fill: false },
-      { label: 'Gold ($)', data: goldVals, borderColor: '#f5d568', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#f5d568', tension: 0.25, yAxisID: 'y2', fill: false }
-    ]
-  },
-  options: { ...baseOptions('BTC ($)', 'Gold ($)') }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 8 — BTC vs VIX scatter
-// ─────────────────────────────────────────────
-const ctx8 = document.getElementById('chartBtcVix').getContext('2d');
-const btcVixPairs = mainBTC.map((b, i) => b !== null ? { x: mainVIX[i], y: b } : null).filter(v => v);
-new Chart(ctx8, {
-  type: 'scatter',
-  data: { datasets: [{ label: 'BTC vs VIX', data: btcVixPairs, backgroundColor: 'rgba(255,180,0,0.6)', pointRadius: 5 }] },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
-    scales: {
-      x: { grid: GRID, ticks: TICK, title: { display: true, text: 'VIX', color: '#3f5e7a', font: { size: 9 } } },
-      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'BTC ($)', color: '#3f5e7a', font: { size: 9 } } }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 9 — Gold vs KRE scatter
-// ─────────────────────────────────────────────
-const ctx9 = document.getElementById('chartGoldKre').getContext('2d');
-const goldKrePairs = mainGold.map((g, i) => g !== null ? { x: mainKRE[i], y: g } : null).filter(v => v);
-new Chart(ctx9, {
-  type: 'scatter',
-  data: { datasets: [{ label: 'Gold vs KRE', data: goldKrePairs, backgroundColor: 'rgba(245,213,104,0.6)', pointRadius: 5 }] },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 } },
-    scales: {
-      x: { grid: GRID, ticks: TICK, title: { display: true, text: 'KRE ($)', color: '#3f5e7a', font: { size: 9 } } },
-      y: { grid: GRID, ticks: TICK, title: { display: true, text: 'Gold ($)', color: '#3f5e7a', font: { size: 9 } } }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 10 — Coinbase Premium Bar
-// ─────────────────────────────────────────────
-const cpColors = mainCPFull.map(v => v === null ? 'transparent' : v >= 0 ? 'rgba(0,212,200,0.75)' : 'rgba(255,74,74,0.75)');
-const ctx10 = document.getElementById('chartCP').getContext('2d');
-new Chart(ctx10, {
-  type: 'bar',
-  data: {
-    labels: mainDates,
-    datasets: [{
-      label: 'Coinbase Premium (%)',
-      data: mainCPFull,
-      backgroundColor: cpColors,
-      borderRadius: 2
-    }]
-  },
-  options: {
-    ...baseOptions('Premium (%)'),
-    plugins: {
-      legend: { display: false },
-      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
-    },
-    scales: {
-      x: { grid: GRID, ticks: { ...TICK, maxRotation: 60 } },
-      y: { grid: GRID, ticks: TICK }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 11 — CP vs BTC
-// ─────────────────────────────────────────────
-const ctx11 = document.getElementById('chartCpBtc').getContext('2d');
-const cpBtcDates = mainDates.filter((_, i) => mainBTC[i] !== null && mainCPFull[i] !== null);
-const cpBtcVals  = mainCPFull.filter((v, i) => mainBTC[i] !== null && v !== null);
-const cpBtcPrices= mainBTC.filter((v, i) => v !== null && mainCPFull[i] !== null);
-new Chart(ctx11, {
-  type: 'line',
-  data: {
-    labels: cpBtcDates,
-    datasets: [
-      { label: 'CP (%)', data: cpBtcVals, borderColor: '#00d4c8', borderWidth: 2, pointRadius: 3, tension: 0.2, yAxisID: 'y' },
-      { label: 'BTC/1000', data: cpBtcPrices.map(v => v/1000), borderColor: 'rgba(255,180,0,0.6)', borderWidth: 1.5, borderDash: [3,2], pointRadius: 2, tension: 0.2, yAxisID: 'y2' }
-    ]
-  },
-  options: { ...baseOptions('CP (%)', 'BTC/1000') }
-});
-
-// ─────────────────────────────────────────────
-//  CHART 12 — Curve 3Pool
-// ─────────────────────────────────────────────
-const ctx12 = document.getElementById('chartCurve').getContext('2d');
-new Chart(ctx12, {
-  type: 'line',
-  data: {
-    labels: mainDates,
-    datasets: [{ label: 'USDT % in Curve 3Pool', data: mainCurve, borderColor: '#60a5fa', borderWidth: 2, pointRadius: 2, tension: 0.2, fill: { target: 'origin', above: 'rgba(96,165,250,0.08)' } }]
-  },
-  options: {
-    ...baseOptions('USDT %'),
-    plugins: {
-      legend: { display: false },
-      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
-    },
-    scales: {
-      x: { grid: GRID, ticks: { ...TICK, maxRotation: 60 } },
-      y: { grid: GRID, ticks: TICK, min: 30, max: 52 }
-    }
-  }
-});
-
-// ─────────────────────────────────────────────
-//  CORRELATION MATRIX
-// ─────────────────────────────────────────────
-
-function pearson(a, b) {
-  const pairs = a.map((v, i) => [v, b[i]]).filter(p => p[0] !== null && p[1] !== null && !isNaN(p[0]) && !isNaN(p[1]));
-  if (pairs.length < 4) return null;
-  const n = pairs.length;
-  const m1 = pairs.reduce((s, p) => s + p[0], 0) / n;
-  const m2 = pairs.reduce((s, p) => s + p[1], 0) / n;
-  const num = pairs.reduce((s, p) => s + (p[0]-m1)*(p[1]-m2), 0);
-  const d1  = Math.sqrt(pairs.reduce((s, p) => s + (p[0]-m1)**2, 0));
-  const d2  = Math.sqrt(pairs.reduce((s, p) => s + (p[1]-m2)**2, 0));
-  return d1*d2 === 0 ? 0 : +(num / (d1*d2)).toFixed(3);
+// ── Sparkline helper ──
+function sparkline(canvasId,vals,color){
+  const ctx=document.getElementById(canvasId);
+  if(!ctx||!vals||vals.length<2)return null;
+  return new Chart(ctx,{type:'line',data:{labels:vals.map((_,i)=>i),datasets:[{data:vals,borderColor:color,borderWidth:1.5,pointRadius:0,tension:0.3,fill:{target:'origin',above:color.replace(')',',0.08)').replace('rgb','rgba')}}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});
 }
 
-const corrVars = [
-  { label: 'KRE',   data: mainKRE,     fact: true },
-  { label: 'VIX',   data: mainVIX,     fact: true },
-  { label: '10Y',   data: mainYield,   fact: true },
-  { label: 'MOVE',  data: mainMOVE,    fact: true },
-  { label: 'BTC★',  data: mainBTC,     fact: false },
-  { label: 'Gold★', data: mainGold,    fact: false },
-  { label: 'CP★',   data: mainCPFull,  fact: false },
+// ── Delta formatter ──
+function delta(cur,prev,unit=''){
+  if(cur==null||prev==null)return '';
+  const d=cur-prev;const p=((d/prev)*100).toFixed(2);
+  const s=d>=0?'▲':'▼';const cls=d>=0?'pos':'neg';
+  return`<span class="${cls}">${s} ${Math.abs(d).toFixed(unit==='%'?3:1)}${unit} (${d>=0?'+':''}${p}%)</span>`;
+}
+function setHero(id,val,prev,unit,dId){
+  const el=document.getElementById(id);if(el)el.textContent=val==null?'—':(unit==='%'?val.toFixed(2)+'%':unit==='₩'?'₩'+Math.round(val).toLocaleString():unit==='$'?'$'+val.toFixed(2):val.toFixed(2));
+  const de=document.getElementById(dId);if(de)de.innerHTML=delta(val,prev,unit==='%'?'%':unit==='₩'?'원':'');
+}
+function setMini(id,val,prev,unit,did){
+  const el=document.getElementById(id);if(el)el.textContent=val==null?'—':(unit==='₩'?Math.round(val).toLocaleString():unit==='%'?val.toFixed(2)+'%':val.toFixed(2));
+  const de=document.getElementById(did);if(de){const d=val&&prev?val-prev:0;de.style.color=d>=0?'var(--kre)':'var(--sim)';de.textContent=val&&prev?(d>=0?'▲':'▼'):''}
+}
+
+// ═══════════════════════════════════════════════
+//  STATIC CHARTS (always shown from hardcoded data)
+// ═══════════════════════════════════════════════
+function buildStaticCharts(){
+  // Overview — KRE vs VIX
+  const kreEst=allKRE.map((v,i)=>i<splitIdx?v:null);
+  const kreFact=allKRE.map((v,i)=>i>=splitIdx-1?v:null);
+  const vixEst=allVIX.map((v,i)=>i<splitIdx?v:null);
+  const vixFact=allVIX.map((v,i)=>i>=splitIdx-1?v:null);
+  new Chart(document.getElementById('chartOverview').getContext('2d'),{type:'line',data:{labels:allDates,datasets:[
+    {label:'KRE(est)',data:kreEst,borderColor:'rgba(34,217,133,0.35)',borderWidth:1.5,borderDash:[4,3],pointRadius:1.5,tension:0.3,yAxisID:'y',spanGaps:false},
+    {label:'KRE',data:kreFact,borderColor:'#22d985',borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#22d985',tension:0.2,yAxisID:'y',spanGaps:false},
+    {label:'VIX(est)',data:vixEst,borderColor:'rgba(255,107,53,0.3)',borderWidth:1.5,borderDash:[4,3],pointRadius:1.5,tension:0.3,yAxisID:'y2',spanGaps:false},
+    {label:'VIX',data:vixFact,borderColor:'#ff6b35',borderWidth:2,pointRadius:2,pointBackgroundColor:'#ff6b35',tension:0.2,yAxisID:'y2',spanGaps:false}
+  ]},options:baseOpts('KRE ($)','VIX')});
+
+  // KRE Return bars
+  const base=mainKRE[0];const kreRet=mainKRE.map(v=>+((v/base-1)*100).toFixed(2));
+  new Chart(document.getElementById('chartKreReturn').getContext('2d'),{type:'bar',data:{labels:mainDates,datasets:[{label:'KRE %',data:kreRet,backgroundColor:kreRet.map(v=>v>=0?'rgba(34,217,133,0.7)':'rgba(255,74,74,0.7)'),borderRadius:2}]},
+    options:{...baseOpts('%'),plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},scales:{x:{grid:GRID,ticks:{...TICK,maxRotation:60}},y:{grid:GRID,ticks:TICK}}}});
+
+  // VIX dist
+  const bins={'15-18':0,'18-21':0,'21-24':0,'24-27':0,'27-30':0};
+  mainVIX.forEach(v=>{if(v<18)bins['15-18']++;else if(v<21)bins['18-21']++;else if(v<24)bins['21-24']++;else if(v<27)bins['24-27']++;else bins['27-30']++;});
+  new Chart(document.getElementById('chartVixDist').getContext('2d'),{type:'bar',data:{labels:Object.keys(bins),datasets:[{data:Object.values(bins),backgroundColor:['rgba(255,107,53,0.5)','rgba(255,107,53,0.65)','rgba(255,107,53,0.75)','rgba(255,107,53,0.85)','rgba(255,74,74,0.9)'],borderRadius:3}]},
+    options:{...baseOpts('일수'),plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},scales:{x:{grid:GRID,ticks:TICK},y:{grid:GRID,ticks:{...TICK,stepSize:1}}}}});
+
+  // Yield + MOVE
+  const yEst=allYield.map((v,i)=>i<splitIdx?v:null);const yFact=allYield.map((v,i)=>i>=splitIdx-1?v:null);
+  new Chart(document.getElementById('chartYieldMove').getContext('2d'),{type:'line',data:{labels:allDates,datasets:[
+    {label:'Yield(est)',data:yEst,borderColor:'rgba(79,168,255,0.35)',borderWidth:1.5,borderDash:[4,3],pointRadius:1,tension:0.3,yAxisID:'y',spanGaps:false},
+    {label:'Yield',data:yFact,borderColor:'#4fa8ff',borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#4fa8ff',tension:0.2,yAxisID:'y',spanGaps:false},
+    {label:'MOVE',data:allMove,borderColor:'#c07af6',borderWidth:2,pointRadius:2,pointBackgroundColor:'#c07af6',tension:0.2,yAxisID:'y2',spanGaps:true}
+  ]},options:baseOpts('Yield (%)','MOVE')});
+
+  // Scatter KRE vs Yield
+  new Chart(document.getElementById('chartSc1').getContext('2d'),{type:'scatter',data:{datasets:[{label:'KRE vs 10Y',data:mainKRE.map((k,i)=>({x:mainYield[i],y:k})),backgroundColor:'rgba(34,217,133,0.6)',pointRadius:5}]},options:scatterOpts('10Y Yield (%)','KRE ($)')});
+  // Scatter VIX vs MOVE
+  new Chart(document.getElementById('chartSc2').getContext('2d'),{type:'scatter',data:{datasets:[{label:'VIX vs MOVE',data:mainVIX.map((v,i)=>({x:v,y:mainMOVE[i]})),backgroundColor:'rgba(192,122,246,0.6)',pointRadius:5}]},options:scatterOpts('VIX','MOVE')});
+
+  // BTC+Gold (SIM placeholder)
+  const bDates=mainDates.filter((_,i)=>mainBTC[i]!==null);
+  const bVals=mainBTC.filter(v=>v!==null);
+  const gVals=mainGold.filter(v=>v!==null);
+  window._chartBtcGold=new Chart(document.getElementById('chartBtcGold').getContext('2d'),{type:'line',data:{labels:bDates,datasets:[
+    {label:'BTC ($)',data:bVals,borderColor:'#ffb400',borderWidth:2.5,pointRadius:2,pointBackgroundColor:'#ffb400',tension:0.25,yAxisID:'y',fill:false},
+    {label:'Gold ($)',data:gVals,borderColor:'#f5d568',borderWidth:2,pointRadius:2,pointBackgroundColor:'#f5d568',tension:0.25,yAxisID:'y2',fill:false}
+  ]},options:baseOpts('BTC ($)','Gold ($)')});
+
+  // BTC vs VIX scatter
+  window._chartBtcVix=new Chart(document.getElementById('chartBtcVix').getContext('2d'),{type:'scatter',data:{datasets:[{label:'BTC vs VIX',data:mainBTC.map((b,i)=>b?{x:mainVIX[i],y:b}:null).filter(Boolean),backgroundColor:'rgba(255,180,0,0.6)',pointRadius:5}]},options:scatterOpts('VIX','BTC ($)')});
+  // Gold vs KRE scatter
+  window._chartGoldKre=new Chart(document.getElementById('chartGoldKre').getContext('2d'),{type:'scatter',data:{datasets:[{label:'Gold vs KRE',data:mainGold.map((g,i)=>g?{x:mainKRE[i],y:g}:null).filter(Boolean),backgroundColor:'rgba(245,213,104,0.6)',pointRadius:5}]},options:scatterOpts('KRE ($)','Gold ($)')});
+
+  // Coinbase Premium
+  const cpColors=mainCPFull.map(v=>v===null?'transparent':v>=0?'rgba(0,212,200,0.75)':'rgba(255,74,74,0.75)');
+  new Chart(document.getElementById('chartCP').getContext('2d'),{type:'bar',data:{labels:mainDates,datasets:[{label:'CP (%)',data:mainCPFull,backgroundColor:cpColors,borderRadius:2}]},
+    options:{...baseOpts('%'),plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},scales:{x:{grid:GRID,ticks:{...TICK,maxRotation:60}},y:{grid:GRID,ticks:TICK}}}});
+
+  // CP vs BTC
+  const cpBtcIdx=mainDates.map((_,i)=>i).filter(i=>mainBTC[i]!==null&&mainCPFull[i]!==null);
+  new Chart(document.getElementById('chartCpBtc').getContext('2d'),{type:'line',data:{labels:cpBtcIdx.map(i=>mainDates[i]),datasets:[
+    {label:'CP (%)',data:cpBtcIdx.map(i=>mainCPFull[i]),borderColor:'#00d4c8',borderWidth:2,pointRadius:2,tension:0.2,yAxisID:'y'},
+    {label:'BTC/1000',data:cpBtcIdx.map(i=>mainBTC[i]/1000),borderColor:'rgba(255,180,0,0.5)',borderWidth:1.5,borderDash:[3,2],pointRadius:1.5,tension:0.2,yAxisID:'y2'}
+  ]},options:baseOpts('CP (%)','BTC/1k')});
+
+  // Curve
+  new Chart(document.getElementById('chartCurve').getContext('2d'),{type:'line',data:{labels:mainDates,datasets:[{label:'USDT %',data:mainCurve,borderColor:'#60a5fa',borderWidth:2,pointRadius:2,tension:0.2,fill:{target:'origin',above:'rgba(96,165,250,0.08)'}}]},
+    options:{...baseOpts('USDT %'),plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},scales:{x:{grid:GRID,ticks:{...TICK,maxRotation:60}},y:{grid:GRID,ticks:TICK,min:30,max:52}}}});
+
+  // Static sparklines from hardcoded data
+  sparkline('sp-kre',mainKRE,'#22d985');
+  sparkline('sp-vix',mainVIX,'#ff6b35');
+  sparkline('sp-yield',mainYield,'#4fa8ff');
+  sparkline('sp-move',mainMOVE,'#c07af6');
+
+  // Hero values from static data
+  const kLast=mainKRE[mainKRE.length-1],kPrev=mainKRE[mainKRE.length-2];
+  setHero('h-kre',kLast,kPrev,'$','hd-kre');
+  setMini('m-kre',kLast,kPrev,'$','md-kre');
+
+  const vLast=mainVIX[mainVIX.length-1],vPrev=mainVIX[mainVIX.length-2];
+  setHero('h-vix',vLast,vPrev,'','hd-vix');
+  setMini('m-vix',vLast,vPrev,'','md-vix');
+
+  const yLast=mainYield[mainYield.length-1],yPrev=mainYield[mainYield.length-2];
+  const yEl=document.getElementById('h-yield');if(yEl)yEl.textContent=yLast+'%';
+  document.getElementById('hd-yield').innerHTML=delta(yLast,yPrev,'%');
+  setMini('m-yield',yLast,yPrev,'%','md-yield');
+
+  const mLast=mainMOVE[mainMOVE.length-1],mPrev=mainMOVE[mainMOVE.length-2];
+  setHero('h-move',mLast,mPrev,'','hd-move');
+  setMini('m-move',mLast,mPrev,'','md-move');
+
+  buildCorrelation();
+  buildAlerts();
+}
+
+// ── Placeholder VVIX scatter / RATIO charts (pre-live) ──
+window._chartVvix=null; window._chartRatio=null;
+window._chartDxyVix=null; window._chartKrwKre=null;
+window._chartVvixVix=null; window._chartRatioKre=null;
+
+function buildLiveCharts(ld){
+  // USD/KRW chart
+  if(ld.usdkrw.vals.length>1){
+    if(window._chartUsdkrw){window._chartUsdkrw.destroy();}
+    window._chartUsdkrw=new Chart(document.getElementById('chartUsdkrw').getContext('2d'),{type:'line',data:{labels:ld.usdkrw.dates,datasets:[{label:'USD/KRW',data:ld.usdkrw.vals,borderColor:'#f97316',borderWidth:2.5,pointRadius:1.5,pointBackgroundColor:'#f97316',tension:0.25,fill:{target:'origin',above:'rgba(249,115,22,0.06)'}}]},options:baseOpts('원/달러')});
+    sparkline('sp-usdkrw',ld.usdkrw.vals,'#f97316');
+  }
+  // DXY chart
+  if(ld.dxy.vals.length>1){
+    if(window._chartDxy){window._chartDxy.destroy();}
+    window._chartDxy=new Chart(document.getElementById('chartDxy').getContext('2d'),{type:'line',data:{labels:ld.dxy.dates,datasets:[{label:'DXY',data:ld.dxy.vals,borderColor:'#38bdf8',borderWidth:2.5,pointRadius:1.5,pointBackgroundColor:'#38bdf8',tension:0.25,fill:{target:'origin',above:'rgba(56,189,248,0.06)'}}]},options:baseOpts('DXY')});
+    sparkline('sp-dxy',ld.dxy.vals,'#38bdf8');
+  }
+  // VVIX chart
+  if(ld.vvix.vals.length>1){
+    if(window._chartVvix){window._chartVvix.destroy();}
+    window._chartVvix=new Chart(document.getElementById('chartVvix').getContext('2d'),{type:'line',data:{labels:ld.vvix.dates,datasets:[{label:'VVIX',data:ld.vvix.vals,borderColor:'#e879f9',borderWidth:2.5,pointRadius:1.5,pointBackgroundColor:'#e879f9',tension:0.25,fill:{target:'origin',above:'rgba(232,121,249,0.06)'}}]},options:baseOpts('VVIX')});
+    sparkline('sp-vvix',ld.vvix.vals,'#e879f9');
+
+    // VVIX/VIX ratio — align with static VIX data (last N days)
+    const rLen=Math.min(ld.vvix.vals.length,mainVIX.length);
+    const rVvix=ld.vvix.vals.slice(-rLen);
+    const rVix=mainVIX.slice(-rLen);
+    const rDates=ld.vvix.dates.slice(-rLen);
+    const ratioVals=rVvix.map((v,i)=>rVix[i]?+(v/rVix[i]).toFixed(3):null);
+
+    if(window._chartRatio){window._chartRatio.destroy();}
+    window._chartRatio=new Chart(document.getElementById('chartRatio').getContext('2d'),{type:'line',data:{labels:rDates,datasets:[{label:'VVIX/VIX',data:ratioVals,borderColor:'#a3e635',borderWidth:2.5,pointRadius:1.5,pointBackgroundColor:'#a3e635',tension:0.25,fill:{target:'origin',above:'rgba(163,230,53,0.06)'}}]},options:baseOpts('비율')});
+    sparkline('sp-ratio',ratioVals.filter(Boolean),'#a3e635');
+
+    // VVIX vs VIX scatter
+    const vvixVixPairs=rVvix.map((v,i)=>rVix[i]?{x:rVix[i],y:v}:null).filter(Boolean);
+    if(window._chartVvixVix){window._chartVvixVix.destroy();}
+    window._chartVvixVix=new Chart(document.getElementById('chartVvixVix').getContext('2d'),{type:'scatter',data:{datasets:[{label:'VVIX vs VIX',data:vvixVixPairs,backgroundColor:'rgba(232,121,249,0.6)',pointRadius:5}]},options:scatterOpts('VIX','VVIX')});
+
+    // Ratio vs KRE scatter
+    const ratioKrePairs=ratioVals.map((r,i)=>r?{x:mainKRE[mainKRE.length-rLen+i],y:r}:null).filter(Boolean);
+    if(window._chartRatioKre){window._chartRatioKre.destroy();}
+    window._chartRatioKre=new Chart(document.getElementById('chartRatioKre').getContext('2d'),{type:'scatter',data:{datasets:[{label:'Ratio vs KRE',data:ratioKrePairs,backgroundColor:'rgba(163,230,53,0.6)',pointRadius:5}]},options:scatterOpts('KRE ($)','VVIX/VIX')});
+
+    // Hero VVIX/VIX ratio
+    const rLast=ratioVals[ratioVals.length-1];const rPrev=ratioVals[ratioVals.length-2];
+    const rEl=document.getElementById('h-ratio');if(rEl)rEl.textContent=rLast?rLast.toFixed(2):'—';
+    document.getElementById('hd-ratio').innerHTML=delta(rLast,rPrev,'');
+    setMini('m-ratio',rLast,rPrev,'','md-ratio');
+  }
+  // DXY vs VIX scatter (align last N)
+  if(ld.dxy.vals.length>1){
+    const dLen=Math.min(ld.dxy.vals.length,mainVIX.length);
+    const dxySub=ld.dxy.vals.slice(-dLen);const vixSub=mainVIX.slice(-dLen);
+    const dxyVixPairs=dxySub.map((d,i)=>({x:vixSub[i],y:d}));
+    if(window._chartDxyVix){window._chartDxyVix.destroy();}
+    window._chartDxyVix=new Chart(document.getElementById('chartDxyVix').getContext('2d'),{type:'scatter',data:{datasets:[{label:'DXY vs VIX',data:dxyVixPairs,backgroundColor:'rgba(56,189,248,0.6)',pointRadius:5}]},options:scatterOpts('VIX','DXY')});
+  }
+  // USD/KRW vs KRE scatter
+  if(ld.usdkrw.vals.length>1){
+    const kLen=Math.min(ld.usdkrw.vals.length,mainKRE.length);
+    const krwSub=ld.usdkrw.vals.slice(-kLen);const kreSub=mainKRE.slice(-kLen);
+    const krwKrePairs=krwSub.map((k,i)=>({x:kreSub[i],y:k}));
+    if(window._chartKrwKre){window._chartKrwKre.destroy();}
+    window._chartKrwKre=new Chart(document.getElementById('chartKrwKre').getContext('2d'),{type:'scatter',data:{datasets:[{label:'KRW vs KRE',data:krwKrePairs,backgroundColor:'rgba(249,115,22,0.6)',pointRadius:5}]},options:scatterOpts('KRE ($)','USD/KRW')});
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  LIVE API FETCH
+// ═══════════════════════════════════════════════
+const PROXIES=[
+  'https://api.allorigins.win/get?url=',
+  'https://corsproxy.io/?url=',
 ];
+function yhUrl(sym){return encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=90d`);}
 
-function corrColor(v) {
-  if (v === null) return 'rgba(26,36,56,0.3)';
-  const abs = Math.abs(v);
-  if (v > 0) return `rgba(34,217,133,${0.12 + abs * 0.55})`;
-  return `rgba(255,74,74,${0.12 + abs * 0.55})`;
+async function parseYH(text){
+  const j=JSON.parse(text);
+  const res=j.chart.result[0];
+  const ts=res.timestamp;
+  const cl=res.indicators.quote[0].close;
+  const dates=ts.map(t=>{const d=new Date(t*1000);return`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;});
+  const vals=cl.map(v=>v?+v.toFixed(3):null);
+  return{dates,vals};
 }
 
-const tbl = document.getElementById('corrTable');
-const hdr = tbl.insertRow();
-hdr.insertCell().textContent = '';
-corrVars.forEach(cv => {
-  const th = document.createElement('th');
-  th.textContent = cv.label;
-  th.style.color = cv.fact ? '#6e9abf' : '#ff9944';
-  hdr.appendChild(th);
-});
-corrVars.forEach((rv, ri) => {
-  const row = tbl.insertRow();
-  const lbl = row.insertCell();
-  lbl.textContent = rv.label;
-  lbl.className = 'row-label';
-  lbl.style.color = rv.fact ? '#6e9abf' : '#ff9944';
-  corrVars.forEach((cv, ci) => {
-    const cell = row.insertCell();
-    if (ri === ci) {
-      cell.textContent = '1.000';
-      cell.style.background = 'rgba(34,217,133,0.25)';
-      cell.style.color = '#22d985';
+async function fetchYH(sym){
+  const url=yhUrl(sym);
+  // Try allorigins
+  try{
+    const r=await fetch('https://api.allorigins.win/get?url='+url,{signal:AbortSignal.timeout(8000)});
+    if(r.ok){const j=await r.json();if(j.contents)return await parseYH(j.contents);}
+  }catch(e){console.warn('[allorigins]',sym,e.message);}
+  // Try corsproxy.io
+  try{
+    const r=await fetch('https://corsproxy.io/?url='+url,{signal:AbortSignal.timeout(8000)});
+    if(r.ok){const text=await r.text();return await parseYH(text);}
+  }catch(e){console.warn('[corsproxy]',sym,e.message);}
+  // Try direct (works if no CORS, e.g. localhost)
+  try{
+    const r=await fetch(decodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
+    if(r.ok){return await parseYH(await r.text());}
+  }catch(e){console.warn('[direct]',sym,e.message);}
+  throw new Error(sym+' all proxies failed');
+}
+
+function setBadge(id,ok){
+  const el=document.getElementById(id);if(!el)return;
+  if(ok){el.textContent='● LIVE';el.className='badge b-live';}
+  else{el.textContent='⚠ SIM';el.className='badge b-sim';}
+}
+
+async function fetchAllLive(){
+  const btn=document.getElementById('refreshBtn');
+  if(btn)btn.disabled=true;
+  document.getElementById('updateTime').textContent='업데이트 중...';
+
+  const results={usdkrw:false,dxy:false,vvix:false,btc:false,gold:false};
+
+  // USD/KRW
+  try{const d=await fetchYH('KRW%3DX');liveData.usdkrw=d;results.usdkrw=true;
+    setBadge('badge-usdkrw',true);
+    const l=d.vals[d.vals.length-1],p=d.vals[d.vals.length-2];
+    const el=document.getElementById('h-usdkrw');if(el)el.textContent=l?'₩'+Math.round(l).toLocaleString():'—';
+    document.getElementById('hd-usdkrw').innerHTML=delta(l,p,'');
+    setMini('m-usdkrw',l,p,'₩','md-usdkrw');
+  }catch(e){console.warn('[KRW]',e.message);}
+
+  // DXY
+  try{const d=await fetchYH('DX-Y.NYB');liveData.dxy=d;results.dxy=true;
+    setBadge('badge-dxy',true);
+    const l=d.vals[d.vals.length-1],p=d.vals[d.vals.length-2];
+    const el=document.getElementById('h-dxy');if(el)el.textContent=l?l.toFixed(2):'—';
+    document.getElementById('hd-dxy').innerHTML=delta(l,p,'');
+    setMini('m-dxy',l,p,'','md-dxy');
+  }catch(e){console.warn('[DXY]',e.message);}
+
+  // VVIX
+  try{const d=await fetchYH('%5EVVIX');liveData.vvix=d;results.vvix=true;
+    setBadge('badge-vvix',true);
+    const l=d.vals[d.vals.length-1],p=d.vals[d.vals.length-2];
+    const el=document.getElementById('h-vvix');if(el)el.textContent=l?l.toFixed(2):'—';
+    document.getElementById('hd-vvix').innerHTML=delta(l,p,'');
+    setMini('m-vvix',l,p,'','md-vvix');
+  }catch(e){console.warn('[VVIX]',e.message);}
+
+  // BTC (CoinGecko)
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=90&interval=daily',{signal:AbortSignal.timeout(10000)});
+    if(!r.ok)throw new Error('CG '+r.status);
+    const j=await r.json();
+    const prices=j.prices;
+    const dates=prices.map(([ts])=>{const d=new Date(ts);return`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;});
+    const vals=prices.map(([,p])=>Math.round(p));
+    liveData.btc={dates,vals};results.btc=true;
+    const l=vals[vals.length-1],p=vals[vals.length-2];
+    const el=document.getElementById('sv-btc');if(el)el.textContent='$'+l.toLocaleString();
+    window._chartBtcGold.data.labels=dates;
+    window._chartBtcGold.data.datasets[0].data=vals;
+    const last25=vals.slice(-mainVIX.length);
+    window._chartBtcVix.data.datasets[0].data=mainVIX.map((v,i)=>last25[i]?{x:v,y:last25[i]}:null).filter(Boolean);
+  }catch(e){console.warn('[BTC]',e.message);}
+
+  // GOLD
+  try{const d=await fetchYH('GC%3DF');liveData.gold=d;results.gold=true;
+    if(results.btc){
+      const gMap={};d.dates.forEach((dt,i)=>{if(d.vals[i])gMap[dt]=d.vals[i];});
+      window._chartBtcGold.data.datasets[1].data=liveData.btc.dates.map(dt=>gMap[dt]||null);
     } else {
-      const r = pearson(rv.data, cv.data);
-      if (r === null) {
-        cell.textContent = 'n/a';
-        cell.className = 'corr-na';
-        cell.style.background = 'rgba(26,36,56,0.4)';
-      } else {
-        cell.textContent = r.toFixed(3);
-        cell.style.background = corrColor(r);
-        cell.style.color = r > 0 ? '#22d985' : '#ff4a4a';
-        if (Math.abs(r) < 0.15) { cell.style.color = '#4a6580'; }
-      }
+      window._chartBtcGold.data.labels=d.dates;
+      window._chartBtcGold.data.datasets[1].data=d.vals;
     }
-    cell.style.transition = 'background 0.3s';
-  });
-});
+    const last25g=d.vals.slice(-mainKRE.length);
+    window._chartGoldKre.data.datasets[0].data=mainKRE.map((k,i)=>last25g[i]?{x:k,y:last25g[i]}:null).filter(Boolean);
+  }catch(e){console.warn('[Gold]',e.message);}
 
-// ─────────────────────────────────────────────
-//  CHART 13 — Radar (KRE correlations)
-// ─────────────────────────────────────────────
-const kreCorrs = corrVars.filter(v => v.label !== 'KRE').map(v => {
-  const r = pearson(mainKRE, v.data);
-  return r !== null ? Math.abs(r) : 0;
-});
-const kreCorrsRaw = corrVars.filter(v => v.label !== 'KRE').map(v => pearson(mainKRE, v.data));
-const ctx13 = document.getElementById('chartRadar').getContext('2d');
-new Chart(ctx13, {
-  type: 'radar',
-  data: {
-    labels: corrVars.filter(v => v.label !== 'KRE').map(v => v.label),
-    datasets: [{
-      label: '|r| with KRE',
-      data: kreCorrs,
-      backgroundColor: 'rgba(34,217,133,0.1)',
-      borderColor: '#22d985',
-      borderWidth: 2,
-      pointBackgroundColor: '#22d985',
-      pointRadius: 4
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { backgroundColor: '#0c1a2b', borderColor: '#1d3452', borderWidth: 1, titleColor: '#8ab4d8', bodyColor: '#cde0f5', padding: 10 }
-    },
-    scales: {
-      r: {
-        min: 0, max: 1,
-        grid: { color: 'rgba(26,36,56,0.8)' },
-        angleLines: { color: 'rgba(26,36,56,0.8)' },
-        pointLabels: { color: '#6e9abf', font: { size: 9 } },
-        ticks: { color: '#3f5e7a', font: { size: 8 }, stepSize: 0.2, backdropColor: 'transparent' }
+  // Update charts
+  window._chartBtcGold.update();
+  window._chartBtcVix.update();
+  window._chartGoldKre.update();
+
+  // BTC+Gold badge
+  const bgBadge=document.getElementById('badge-btcgold');
+  if(results.btc&&results.gold){bgBadge.textContent='● LIVE';bgBadge.className='badge b-live';}
+  else if(results.btc||results.gold){bgBadge.textContent='⚡ PARTIAL';bgBadge.className='badge b-warn';}
+
+  // Crypto status bar
+  const csi=document.getElementById('csi');
+  const csbar=document.getElementById('crypto-status');
+  if(results.btc&&results.gold){
+    csi.textContent='● LIVE';csi.style.color='var(--kre)';
+    csbar.style.background='rgba(34,217,133,0.05)';csbar.style.borderColor='rgba(34,217,133,0.2)';
+    csbar.childNodes[1].textContent=' — BTC(CoinGecko) · Gold(Yahoo Finance) 실시간 연결 완료.';
+  } else {
+    csi.textContent='⚠ PARTIAL / SIM';
+  }
+
+  // Build live charts
+  buildLiveCharts(liveData);
+
+  // Save to localStorage
+  const kstNow=new Date(Date.now()+9*3600000);
+  const kstStr=kstNow.toISOString().slice(0,16).replace('T',' ')+'(KST)';
+  localStorage.setItem('kre_last_fetch', JSON.stringify({
+    ts:Date.now(), kstDate:kstNow.toISOString().slice(0,10),
+    kstHHMM:kstNow.toISOString().slice(11,16)
+  }));
+
+  // Header update
+  const okCount=Object.values(results).filter(Boolean).length;
+  document.getElementById('updateTime').textContent=`마지막 업데이트: ${kstStr} (${okCount}/5 연결)`;
+  document.getElementById('badge-live').textContent=okCount>=3?'● LIVE':'⚠ PARTIAL';
+  document.getElementById('badge-live').className=okCount>=3?'badge b-live':'badge b-warn';
+  document.getElementById('footerNote').textContent=`자본주의 생존일지 · 자산관리사 김병철 AFPK | FACT: KRE·VIX·MOVE·10Y | LIVE: USD/KRW(${results.usdkrw?'✓':'✗'}) DXY(${results.dxy?'✓':'✗'}) VVIX(${results.vvix?'✓':'✗'}) BTC(${results.btc?'✓':'✗'}) Gold(${results.gold?'✓':'✗'}) | SIM: CP·Curve | ${kstStr}`;
+
+  if(btn)btn.disabled=false;
+  liveData.loaded=true;
+  buildAlerts();
+}
+
+// ═══════════════════════════════════════════════
+//  6:30 AM KST SCHEDULE
+// ═══════════════════════════════════════════════
+function shouldFetch(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('kre_last_fetch'));
+    if(!saved)return true;
+    const kstNow=new Date(Date.now()+9*3600000);
+    const todayKST=kstNow.toISOString().slice(0,10);
+    const nowHHMM=kstNow.toISOString().slice(11,16);
+    // If already fetched today after 06:30, skip
+    if(saved.kstDate===todayKST&&saved.kstHHMM>='06:30'&&nowHHMM>='06:30')return false;
+    return true;
+  }catch{return true;}
+}
+
+async function manualRefresh(){await fetchAllLive();}
+
+// ── Schedule next 6:30 AM KST ──
+function scheduleNext630(){
+  const kstNow=new Date(Date.now()+9*3600000);
+  const h=parseInt(kstNow.toISOString().slice(11,13));
+  const m=parseInt(kstNow.toISOString().slice(14,16));
+  let msToNext;
+  if(h<6||(h===6&&m<30)){msToNext=((6-h)*60+(30-m))*60000;}
+  else{msToNext=((30-h)*60+(30-m)+24*60)*60000;}
+  setTimeout(async()=>{await fetchAllLive();scheduleNext630();},msToNext);
+}
+
+// ═══════════════════════════════════════════════
+//  CORRELATION MATRIX
+// ═══════════════════════════════════════════════
+function pearson(a,b){
+  const p=a.map((v,i)=>[v,b[i]]).filter(p=>p[0]!=null&&p[1]!=null&&!isNaN(p[0])&&!isNaN(p[1]));
+  if(p.length<4)return null;
+  const n=p.length,m1=p.reduce((s,x)=>s+x[0],0)/n,m2=p.reduce((s,x)=>s+x[1],0)/n;
+  const num=p.reduce((s,x)=>s+(x[0]-m1)*(x[1]-m2),0);
+  const d1=Math.sqrt(p.reduce((s,x)=>s+(x[0]-m1)**2,0));
+  const d2=Math.sqrt(p.reduce((s,x)=>s+(x[1]-m2)**2,0));
+  return d1*d2===0?0:+(num/(d1*d2)).toFixed(3);
+}
+function cColor(v){if(v===null)return'rgba(26,36,56,0.3)';const a=Math.abs(v);if(v>0)return`rgba(34,217,133,${0.1+a*0.55})`;return`rgba(255,74,74,${0.1+a*0.55})`;}
+
+function buildCorrelation(){
+  const vars=[
+    {l:'KRE',d:mainKRE},{l:'VIX',d:mainVIX},{l:'10Y',d:mainYield},{l:'MOVE',d:mainMOVE},
+    {l:'BTC★',d:mainBTC},{l:'Gold★',d:mainGold},{l:'CP★',d:mainCPFull}
+  ];
+  const tbl=document.getElementById('corrTable');
+  const hdr=tbl.insertRow();hdr.insertCell().textContent='';
+  vars.forEach(v=>{const th=document.createElement('th');th.textContent=v.l;tbl.querySelector('tr').appendChild(th);});
+  vars.forEach((rv,ri)=>{
+    const row=tbl.insertRow();const lbl=row.insertCell();lbl.textContent=rv.l;lbl.className='rl';
+    vars.forEach((cv,ci)=>{
+      const cell=row.insertCell();
+      if(ri===ci){cell.textContent='1.000';cell.style.background='rgba(34,217,133,0.25)';cell.style.color='#22d985';}
+      else{
+        const r=pearson(rv.d,cv.d);
+        if(r===null){cell.textContent='n/a';cell.style.color='#3f5e7a';cell.style.background='rgba(26,36,56,0.4)';}
+        else{cell.textContent=r.toFixed(3);cell.style.background=cColor(r);cell.style.color=r>0?'#22d985':'#ff4a4a';if(Math.abs(r)<0.15)cell.style.color='#4a6580';}
       }
+    });
+  });
+  // Radar
+  const kreCorrs=vars.filter(v=>v.l!=='KRE').map(v=>Math.abs(pearson(mainKRE,v.d)||0));
+  new Chart(document.getElementById('chartRadar').getContext('2d'),{type:'radar',data:{labels:vars.filter(v=>v.l!=='KRE').map(v=>v.l),datasets:[{label:'|r| with KRE',data:kreCorrs,backgroundColor:'rgba(34,217,133,0.1)',borderColor:'#22d985',borderWidth:2,pointBackgroundColor:'#22d985',pointRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1a2b',borderColor:'#1d3452',borderWidth:1,titleColor:'#8ab4d8',bodyColor:'#cde0f5',padding:10}},scales:{r:{min:0,max:1,grid:{color:'rgba(26,36,56,0.8)'},angleLines:{color:'rgba(26,36,56,0.8)'},pointLabels:{color:'#6e9abf',font:{size:11}},ticks:{color:'#3f5e7a',font:{size:8},stepSize:0.2,backdropColor:'transparent'}}}}});
+  // Insights
+  const pairs=[
+    {p:'KRE ↔ VIX',a:mainKRE,b:mainVIX,t:'VIX↑ = 지역은행 압박. 공포 확산 선행지표.'},
+    {p:'KRE ↔ MOVE',a:mainKRE,b:mainMOVE,t:'채권 변동성 확대 = 은행주 밸류에이션 압박.'},
+    {p:'VIX ↔ MOVE',a:mainVIX,b:mainMOVE,t:'동반 상승 = 시스템 리스크 최위험 신호.'},
+    {p:'KRE ↔ 10Y',a:mainKRE,b:mainYield,t:'이 구간 금리↔은행주 방향성 확인.'},
+    {p:'BTC ↔ VIX',a:mainBTC,b:mainVIX,t:'[SIM] 위기 시 BTC 위험자산 성격 테스트.'},
+    {p:'Gold ↔ KRE',a:mainGold,b:mainKRE,t:'[SIM] 은행위기 시 금의 안전자산 역할.'},
+  ];
+  const box=document.getElementById('corrInsights');
+  pairs.forEach(ins=>{
+    const r=pearson(ins.a,ins.b);const rS=r?r.toFixed(3):'n/a';
+    const rC=r?(r>0?'#22d985':'#ff4a4a'):'#3f5e7a';
+    const st=r?(Math.abs(r)>0.7?'강한 ':Math.abs(r)>0.4?'중간 ':'약한 ')+(r>0?'양':'음'):'';
+    const d=document.createElement('div');
+    d.style.cssText='background:rgba(8,19,31,0.8);border:1px solid #1a2940;border-radius:3px;padding:10px 12px;';
+    d.innerHTML=`<div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#3f5e7a;margin-bottom:6px">${ins.p}</div><div style="font-size:20px;font-weight:700;color:${rC};margin-bottom:4px">${rS}</div><div style="font-size:11px;color:#4a6580;margin-bottom:4px">${st} 상관</div><div style="font-size:11px;color:#6e9abf;line-height:1.6">${ins.t}</div>`;
+    box.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  ALERT ROW
+// ═══════════════════════════════════════════════
+function buildAlerts(){
+  const row=document.getElementById('alertRow');row.innerHTML='';
+  const vLast=mainVIX[mainVIX.length-1];
+  const mLast=mainMOVE[mainMOVE.length-1];
+  const kLast=mainKRE[mainKRE.length-1];
+  const kFirst=mainKRE[0];
+  const kreChg=((kLast-kFirst)/kFirst*100).toFixed(1);
+  function chip(cls,txt){const s=document.createElement('span');s.className='alert-chip '+cls;s.textContent=txt;row.appendChild(s);}
+  if(vLast>=29)chip('a-red','🚨 VIX '+vLast+' — 공포 구간');
+  else if(vLast>=24)chip('a-orange','⚠ VIX '+vLast+' — 경계 구간');
+  else chip('a-green','✓ VIX '+vLast+' — 보통');
+  if(mLast>=95)chip('a-red','🚨 MOVE '+mLast+' — 채권 극단 공포');
+  else if(mLast>=75)chip('a-orange','⚠ MOVE '+mLast+' — 채권 긴장');
+  else chip('a-green','✓ MOVE '+mLast+' — 안정');
+  chip(kreChg<-10?'a-red':kreChg<0?'a-orange':'a-green','KRE '+kreChg+'% (구간)');
+  if(liveData.loaded){
+    if(liveData.vvix.vals.length>0&&mainVIX.length>0){
+      const vvL=liveData.vvix.vals[liveData.vvix.vals.length-1];
+      const ratio=vvL?(vvL/vLast).toFixed(2):null;
+      if(ratio&&ratio>5)chip('a-red','🚨 VVIX/VIX '+ratio+' — 극단 패닉');
+      else if(ratio&&ratio>4)chip('a-orange','⚠ VVIX/VIX '+ratio+' — 경계');
+      if(vvL>130)chip('a-red','🚨 VVIX '+vvL.toFixed(0)+' — 극단 공포');
+    }
+    if(liveData.usdkrw.vals.length>0){
+      const krwL=liveData.usdkrw.vals[liveData.usdkrw.vals.length-1];
+      if(krwL>1500)chip('a-red','🚨 USD/KRW '+Math.round(krwL)+'원 — 위기 수준');
+      else if(krwL>1400)chip('a-orange','⚠ USD/KRW '+Math.round(krwL)+'원 — 경계');
+      else chip('a-green','✓ USD/KRW '+Math.round(krwL)+'원');
     }
   }
-});
+}
 
-// ─────────────────────────────────────────────
-//  CORRELATION INSIGHTS
-// ─────────────────────────────────────────────
-const insights = [
-  { pair: 'KRE ↔ VIX', r: pearson(mainKRE, mainVIX), interp: 'VIX 상승 = 지역은행 주가 하락. 공포 확산의 선행지표.' },
-  { pair: 'KRE ↔ MOVE', r: pearson(mainKRE, mainMOVE), interp: '채권시장 변동성 확대가 지역은행 밸류에이션 압박.' },
-  { pair: 'VIX ↔ MOVE', r: pearson(mainVIX, mainMOVE), interp: '주식·채권 공포의 동반 상승 — 시스템 리스크 신호.' },
-  { pair: 'KRE ↔ 10Y', r: pearson(mainKRE, mainYield), interp: '이 구간에서 금리와 은행주 방향성 확인.' },
-  { pair: 'BTC ↔ VIX', r: pearson(mainBTC, mainVIX), interp: '[SIM] 위기 시 BTC의 위험자산 성격 여부 테스트.' },
-  { pair: 'Gold ↔ KRE', r: pearson(mainGold, mainKRE), interp: '[SIM] 은행위기 시 금의 안전자산 역할 확인.' },
-];
-
-const insightBox = document.getElementById('corrInsights');
-insights.forEach(ins => {
-  const div = document.createElement('div');
-  div.style.cssText = 'background:rgba(8,19,31,0.8);border:1px solid #1a2940;border-radius:3px;padding:10px 12px;';
-  const r = ins.r;
-  const rStr = r !== null ? r.toFixed(3) : 'n/a';
-  const rColor = r !== null ? (r > 0 ? '#22d985' : '#ff4a4a') : '#3f5e7a';
-  const strength = r !== null ? (Math.abs(r) > 0.7 ? '강한 ' : Math.abs(r) > 0.4 ? '중간 ' : '약한 ') + (r > 0 ? '양의' : '음의') : '-';
-  div.innerHTML = `
-    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:#3f5e7a;margin-bottom:6px">${ins.pair}</div>
-    <div style="font-size:17px;font-weight:600;color:${rColor};margin-bottom:4px">${rStr}</div>
-    <div style="font-size:9px;color:#4a6580;margin-bottom:4px">${strength} 상관관계</div>
-    <div style="font-size:9px;color:#6e9abf;line-height:1.5">${ins.interp}</div>
-  `;
-  insightBox.appendChild(div);
-});
-
-// ─────────────────────────────────────────────
-//  TABS
-// ─────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+// ═══════════════════════════════════════════════
+//  TABS & MINI BAR
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
     tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+    const isOverview=tab.dataset.tab==='overview';
+    const mini=document.getElementById('miniBar');
+    const tabBar=document.getElementById('tabBar');
+    if(isOverview){mini.classList.remove('visible');tabBar.classList.remove('with-mini');}
+    else{mini.classList.add('visible');tabBar.classList.add('with-mini');}
   });
 });
 
-function toggleInfo(id, btn) {
-  const box = document.getElementById(id);
-  const isOpen = box.classList.toggle('open');
-  btn.classList.toggle('open', isOpen);
-  btn.textContent = isOpen ? '▾ 닫기' : '▸ 이게 뭔데?';
+function tgl(id,btn){
+  const box=document.getElementById(id);const open=box.classList.toggle('open');
+  btn.classList.toggle('open',open);btn.textContent=open?'▾ 닫기':'▸ 이게 뭔데?';
 }
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+buildStaticCharts();
+
+// Show placeholder values immediately so cards aren't blank
+(function initPlaceholders(){
+  const placeholders={
+    'h-usdkrw': '₩1,460', 'hd-usdkrw': '<span class="neu">API 연결 중...</span>',
+    'h-dxy':    '103.4',  'hd-dxy':    '<span class="neu">API 연결 중...</span>',
+    'h-vvix':   '—',      'hd-vvix':   '<span class="neu">API 연결 중...</span>',
+    'h-ratio':  '—',      'hd-ratio':  '<span class="neu">API 연결 중...</span>',
+    'm-usdkrw': '1,460',  'm-dxy': '103.4', 'm-vvix': '—', 'm-ratio': '—',
+  };
+  Object.entries(placeholders).forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(el){if(id.startsWith('hd-')||id.startsWith('md-'))el.innerHTML=val;else el.textContent=val;}
+  });
+})();
+
+if(shouldFetch()){fetchAllLive();}else{
+  const saved=JSON.parse(localStorage.getItem('kre_last_fetch'));
+  document.getElementById('updateTime').textContent=`캐시 데이터 (${saved.kstDate} ${saved.kstHHMM} KST) — 오전 6:30 자동 갱신`;
+}
+scheduleNext630();
 </script>
-
-<div style="padding:12px 24px 20px; border-top:1px solid #132238; margin-top:20px;">
-  <div style="font-size:9px;color:#3f5e7a;line-height:1.8">
-    ⚠ <strong style="color:#ff6b35">데이터 구분</strong> — 
-    FACT: KRE / VIX / US 10Y Yield / MOVE (2026.02.11~03.19 제공 데이터 확정값) &nbsp;|&nbsp;
-    EST: 2025.12~2026.02.10 주간 추정치 (Investing.com / SPGlobal / AdvisorPerspectives 참고, 근사값) &nbsp;|&nbsp;
-    SIM: BTC / Gold / Coinbase Premium / Curve 3Pool — 2008형 금융위기 스트레스 테스트 시나리오, 실제 시장 데이터 아님
-    <br>자본주의 생존일지 · 자산관리사 김병철 AFPK
-  </div>
-</div>
-
 </body>
 </html>
