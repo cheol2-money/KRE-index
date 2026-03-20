@@ -274,6 +274,162 @@ main { padding: 20px 24px; }
 ::-webkit-scrollbar-track { background: var(--card); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
+/* ── INLINE INFO TOGGLE ── */
+.info-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 9px;
+  color: var(--muted);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 2px 8px;
+  margin-bottom: 10px;
+  transition: all 0.15s;
+  user-select: none;
+  background: transparent;
+  font-family: inherit;
+}
+.info-toggle:hover { border-color: var(--secondary); color: var(--secondary); }
+.info-toggle.open { border-color: var(--kre); color: var(--kre); }
+.info-box {
+  display: none;
+  background: rgba(19,34,56,0.55);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  font-size: 10px;
+  color: var(--secondary);
+  line-height: 1.75;
+}
+.info-box.open { display: block; }
+.info-box strong { color: var(--text); }
+.info-box .hl-kre  { color: var(--kre); font-weight: 600; }
+.info-box .hl-vix  { color: var(--vix); font-weight: 600; }
+.info-box .hl-yield{ color: var(--yield); font-weight: 600; }
+.info-box .hl-move { color: var(--move); font-weight: 600; }
+.info-box .hl-btc  { color: var(--btc); font-weight: 600; }
+.info-box .hl-gold { color: var(--gold); font-weight: 600; }
+.info-box .hl-cp   { color: var(--cp); font-weight: 600; }
+.info-box .signal-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.signal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.chip-green { background: rgba(34,217,133,0.12); color: var(--kre); border: 1px solid rgba(34,217,133,0.25); }
+.chip-yellow{ background: rgba(255,180,0,0.12);  color: #ffb400;    border: 1px solid rgba(255,180,0,0.25); }
+.chip-orange{ background: rgba(255,107,53,0.12); color: var(--vix); border: 1px solid rgba(255,107,53,0.25); }
+.chip-red   { background: rgba(255,74,74,0.12);  color: var(--sim); border: 1px solid rgba(255,74,74,0.25); }
+.info-box .vix-table {
+  margin-top: 8px;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 9px;
+}
+.info-box .vix-table td {
+  padding: 5px 10px;
+  border: 1px solid rgba(29,52,82,0.5);
+}
+.info-box .vix-table tr:first-child td { color: var(--secondary); font-weight: 600; }
+.info-quote {
+  border-left: 2px solid var(--kre);
+  padding: 6px 12px;
+  margin: 8px 0;
+  color: var(--text);
+  font-style: italic;
+  font-size: 10px;
+  background: rgba(34,217,133,0.04);
+}
+.info-quote.sim { border-left-color: var(--sim); background: rgba(255,74,74,0.04); }
+
+/* ── GUIDE TAB ── */
+.guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.guide-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+}
+.guide-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.gc-kre::before  { background: var(--kre); }
+.gc-vix::before  { background: var(--vix); }
+.gc-yield::before{ background: var(--yield); }
+.gc-move::before { background: var(--move); }
+.gc-btc::before  { background: var(--btc); }
+.gc-gold::before { background: var(--gold); }
+.gc-cp::before   { background: var(--cp); }
+.gc-curve::before{ background: #60a5fa; }
+.guide-label {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.guide-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+.guide-body {
+  font-size: 10.5px;
+  color: var(--secondary);
+  line-height: 1.8;
+}
+.guide-body strong { color: var(--text); }
+.guide-summary {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 22px 24px;
+  margin-top: 14px;
+}
+.guide-summary-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--kre);
+}
+.guide-summary-body {
+  font-size: 11px;
+  color: var(--secondary);
+  line-height: 1.85;
+}
+.guide-summary-body strong { color: var(--text); }
+@media (max-width: 700px) {
+  .guide-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 700px) {
   .chart-grid-2 { grid-template-columns: 1fr; }
   .stats-row { flex-wrap: wrap; }
@@ -330,6 +486,7 @@ main { padding: 20px 24px; }
   <div class="tab" data-tab="crypto">BTC &amp; Gold <span class="tab-warn">SIM</span></div>
   <div class="tab" data-tab="premium">Coinbase Premium <span class="tab-warn">SIM</span></div>
   <div class="tab" data-tab="corr">Correlation Matrix</div>
+  <div class="tab" data-tab="guide">📖 지표 해설</div>
 </div>
 
 <main>
@@ -343,6 +500,24 @@ main { padding: 20px 24px; }
         KRE (좌축, $) / VIX (우축, pt)
         <span class="badge badge-fact">FACT</span>
       </div>
+      <button class="info-toggle" onclick="toggleInfo('info-krevix', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-krevix">
+        <strong>KRE</strong>는 미국 중소형 지역은행들을 한 바구니에 담은 ETF입니다. 2023년 SVB 파산 때 폭락했던 바로 그 섹터입니다.<br><br>
+        <div class="info-quote">KRE가 내려간다 = 시장이 지역은행들을 위험하다고 판단하고 있다</div>
+        금융위기는 항상 대형 은행이 아니라 <strong>지역은행에서 먼저 터집니다.</strong> 그래서 선행 위기지표로 사용합니다.<br><br>
+        <strong>VIX</strong>는 S&amp;P500 옵션 시장에서 계산되는 공포지수로, <strong>"투자자들이 앞으로 한 달이 얼마나 무섭냐"</strong>를 숫자로 나타낸 것입니다.
+        <table class="vix-table">
+          <tr><td>VIX 수준</td><td>시장 분위기</td></tr>
+          <tr><td><span class="hl-kre">15 이하</span></td><td>평온, 낙관</td></tr>
+          <tr><td><span style="color:var(--yield)">15 ~ 20</span></td><td>보통, 경계 시작</td></tr>
+          <tr><td><span class="hl-vix">20 ~ 30</span></td><td>불안, 긴장</td></tr>
+          <tr><td><span style="color:var(--sim)">30 이상</span></td><td>공포, 패닉</td></tr>
+        </table>
+        <div class="signal-row">
+          <span class="signal-chip chip-red">현재 구간: 24~29 → 시장이 꽤 긴장 중</span>
+          <span class="signal-chip chip-orange">KRE -12.5% (2월 고점 대비)</span>
+        </div>
+      </div>
       <div class="period-note">
         <span class="period-dot dot-est"></span> 점선: 2025.12~2026.02.10 주간 추정치 (웹 검색 기반 근사값)
         &nbsp;|&nbsp;
@@ -355,11 +530,23 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">KRE 누적 수익률 (%)</div>
       <div class="chart-subtitle">2026.02.11 기준 100으로 정규화 <span class="badge badge-fact">FACT</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-krereturn', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-krereturn">
+        2월 11일 시작점을 0%로 놓고, 이후 날짜별로 KRE 가격이 얼마나 올랐는지 내렸는지를 보여줍니다.<br><br>
+        <strong>녹색 막대</strong>는 전날보다 오른 날, <strong>빨간 막대</strong>는 내린 날입니다.<br>
+        전체 추세가 우하향한다면 → 지역은행 섹터에 지속적인 매도 압력이 있다는 신호입니다.
+      </div>
       <div class="chart-wrap"><canvas id="chartKreReturn" height="130"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">VIX 히스토그램 분포</div>
       <div class="chart-subtitle">2026.02.11~03.19 구간 <span class="badge badge-fact">FACT</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-vixdist', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-vixdist">
+        이 구간 동안 VIX가 어느 범위에서 가장 많이 머물렀는지를 보여줍니다.<br><br>
+        막대가 오른쪽(높은 숫자)으로 몰려 있을수록 공포 구간에 오래 머물렀다는 뜻입니다.<br>
+        <div class="info-quote">VIX가 20 이상인 날이 많을수록 → 시장 참여자들이 오랫동안 불안했다는 증거</div>
+      </div>
       <div class="chart-wrap"><canvas id="chartVixDist" height="130"></canvas></div>
     </div>
   </div>
@@ -371,6 +558,19 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">US 10Y 국채금리 vs MOVE 지수</div>
       <div class="chart-subtitle">10Y Yield (좌축, %) / MOVE (우축, pt) <span class="badge badge-fact">FACT</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-yieldmove', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-yieldmove">
+        <strong>US 10Y 금리</strong>는 미국 정부가 10년짜리 빚을 빌릴 때 내는 이자율입니다.<br>
+        <div class="info-quote">전 세계 모든 자산의 가격은 이 숫자를 기준으로 움직입니다.</div>
+        금리가 오른다 → 돈의 값이 비싸진다 → 주식·부동산 등 위험자산 가격에 압박이 옵니다.<br>
+        현재 <strong>4.26%</strong> — 2~3년 전(0%대)에 비하면 여전히 높은 수준입니다.<br><br>
+        <strong>MOVE</strong>는 채권시장의 공포지수입니다. VIX가 주식시장 공포지수라면, MOVE는 <strong>채권 투자자들이 얼마나 방향을 모르겠냐</strong>를 나타냅니다.
+        <div class="info-quote">VIX와 MOVE가 동시에 오를 때 → 주식·채권 모두 불안 → 가장 위험한 신호</div>
+        <div class="signal-row">
+          <span class="signal-chip chip-red">2월 초 MOVE 112 → 시스템 긴장 고조</span>
+          <span class="signal-chip chip-orange">3월 중순 MOVE 98 재반등 → 경계 유지</span>
+        </div>
+      </div>
       <div class="period-note">
         <span class="period-dot dot-est"></span> 점선: 2025.12~2026.02.10 주간 추정치
         &nbsp;|&nbsp;
@@ -383,11 +583,23 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">KRE vs 10Y Yield 산점도</div>
       <div class="chart-subtitle">금리와 지역은행 주가의 관계 <span class="badge badge-fact">FACT</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-scatter1', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-scatter1">
+        각 점 하나가 하루입니다. X축은 그날의 금리, Y축은 그날의 KRE 가격입니다.<br>
+        점들이 <strong>오른쪽 위→왼쪽 아래</strong>로 모인다면 → 금리가 높을수록 KRE가 낮다는 뜻 (음의 상관관계).<br>
+        <strong>오른쪽 위→오른쪽 위</strong>로 모인다면 → 금리와 KRE가 같은 방향 (양의 상관관계).
+      </div>
       <div class="chart-wrap"><canvas id="chartScatterKreYield" height="160"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">VIX vs MOVE 산점도</div>
       <div class="chart-subtitle">주식 & 채권 변동성 동조화 <span class="badge badge-fact">FACT</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-scatter2', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-scatter2">
+        VIX(주식 공포)와 MOVE(채권 공포)가 같이 움직이는지 확인하는 차트입니다.<br><br>
+        점들이 <strong>우상향</strong>으로 모이면 → 주식과 채권 시장이 동시에 긴장 → <strong>시스템 전체가 흔들리는 신호</strong>입니다.<br>
+        반대로 점들이 흩어져 있으면 → 한쪽만 불안한 것이므로 상대적으로 덜 위험합니다.
+      </div>
       <div class="chart-wrap"><canvas id="chartScatterVixMove" height="160"></canvas></div>
     </div>
   </div>
@@ -402,6 +614,15 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">BTC vs Gold 가격 추이</div>
       <div class="chart-subtitle">BTC (좌축, $) / Gold (우축, $) — 2026.02.18 시작 <span class="badge badge-sim">SIMULATION</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-btcgold', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-btcgold">
+        <strong>BTC(비트코인)</strong>은 위기 시 어떻게 반응하는지가 아직 논쟁 중인 자산입니다.<br><br>
+        위기 초반에는 <strong>위험자산처럼</strong> 주식과 함께 떨어지고,<br>
+        위기가 길어지면 <strong>대안자산처럼</strong> 금과 비슷하게 움직이는 경향이 있습니다.<br><br>
+        <strong>금(Gold)</strong>은 수천 년의 역사를 가진 전통 안전자산입니다.
+        <div class="info-quote">KRE 하락 + Gold 상승이 동시에 나타나면 → "은행은 무너지는데 돈은 금으로 도망간다"는 신호</div>
+        이 시나리오에서 금이 5,000달러대로 설정된 건 2008년형 극단적 위기를 가정한 수치입니다.
+      </div>
       <div class="chart-wrap"><canvas id="chartBtcGold" height="100"></canvas></div>
     </div>
   </div>
@@ -409,11 +630,24 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">BTC vs VIX (시나리오 분석)</div>
       <div class="chart-subtitle">공포 상승 시 BTC 반응 <span class="badge badge-sim">SIM</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-btcvix', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-btcvix">
+        시장 공포(VIX)가 높아질 때 BTC가 어떻게 반응하는지 보여줍니다.<br><br>
+        점들이 <strong>우하향</strong>이면 → VIX 오를수록 BTC 하락 → <strong>위험자산 성격</strong><br>
+        점들이 <strong>무작위</strong>로 흩어지면 → 상관없음 → <strong>독립적인 자산 성격</strong><br>
+        <div class="info-quote sim">⚠ 이 데이터는 시뮬레이션입니다. 실제 시장 반응과 다를 수 있습니다.</div>
+      </div>
       <div class="chart-wrap"><canvas id="chartBtcVix" height="160"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-title">Gold vs KRE (안전자산 vs 위험자산)</div>
       <div class="chart-subtitle">은행위기 시 금 vs 지역은행 <span class="badge badge-sim">SIM</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-goldkre', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-goldkre">
+        KRE(지역은행)와 금이 반대 방향으로 움직이는지 확인합니다.<br><br>
+        점들이 <strong>좌상→우하</strong> 방향이면 → KRE 낮을 때 금 높다 → <strong>전형적인 위기 패턴</strong><br>
+        이 패턴이 강할수록 "자금이 위험자산에서 안전자산으로 이동하고 있다"는 신호입니다.
+      </div>
       <div class="chart-wrap"><canvas id="chartGoldKre" height="160"></canvas></div>
     </div>
   </div>
@@ -428,6 +662,16 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">Coinbase Premium Index (% 환산)</div>
       <div class="chart-subtitle">양수 = 미국 투자자 매수우위 / 음수 = 매도우위 (글로벌 대비) <span class="badge badge-sim">SIMULATION</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-cp', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-cp">
+        같은 BTC인데 미국 거래소 코인베이스에서 거래되는 가격이 해외 거래소보다 비싼지 싼지를 나타냅니다.<br><br>
+        <div class="signal-row">
+          <span class="signal-chip chip-green">양수(+) → 미국 투자자들이 BTC를 사고 있다</span>
+          <span class="signal-chip chip-red">음수(−) → 미국 투자자들이 BTC를 팔고 있다</span>
+        </div><br>
+        위기 시 미국 기관들이 BTC를 던지면 프리미엄이 급격히 마이너스로 떨어집니다.<br>
+        <strong>큰 마이너스가 지속</strong>되면 → 미국 기관의 리스크 오프 신호로 해석됩니다.
+      </div>
       <div class="chart-wrap"><canvas id="chartCP" height="110"></canvas></div>
     </div>
   </div>
@@ -440,6 +684,17 @@ main { padding: 20px 24px; }
     <div class="chart-card">
       <div class="chart-title">Curve 3Pool USDT % 추이</div>
       <div class="chart-subtitle">스테이블코인 풀 구성비 (시뮬레이션) <span class="badge badge-sim">SIM</span></div>
+      <button class="info-toggle" onclick="toggleInfo('info-curve', this)">▸ 이게 뭔데?</button>
+      <div class="info-box" id="info-curve">
+        Curve는 스테이블코인끼리 교환하는 DeFi 풀입니다. USDT·USDC·DAI 세 개를 담고 있으며, 정상적으로는 <strong>각각 33%씩</strong> 유지됩니다.<br><br>
+        <div class="info-quote">USDT 비율이 48%로 급등한 날(3월 2일) → 누군가 USDT를 집중적으로 팔고 USDC·DAI로 도망간 것</div>
+        스테이블코인 시장에서 특정 코인을 불신하기 시작할 때 나타납니다.<br>
+        2022년 LUNA 붕괴 때도 이런 패턴이 먼저 나타났습니다.
+        <div class="signal-row">
+          <span class="signal-chip chip-green">33% 근방 → 정상</span>
+          <span class="signal-chip chip-red">40% 이상 이탈 → 특정 스테이블코인 불신 신호</span>
+        </div>
+      </div>
       <div class="chart-wrap"><canvas id="chartCurve" height="160"></canvas></div>
     </div>
   </div>
@@ -467,6 +722,155 @@ main { padding: 20px 24px; }
       <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="corrInsights"></div>
     </div>
   </div>
+</div>
+
+<!-- ── TAB 6: 지표 해설 ── -->
+<div class="tab-panel" id="tab-guide">
+
+  <div class="guide-grid">
+
+    <!-- KRE -->
+    <div class="guide-card gc-kre">
+      <div class="guide-label"><span style="color:var(--kre)">■</span> FACT 지표 · 지역은행 ETF</div>
+      <div class="guide-title" style="color:var(--kre)">KRE</div>
+      <div class="guide-body">
+        미국 중소형 지역은행들을 한 바구니에 묶은 ETF(상장지수펀드)입니다.<br><br>
+        2023년 실리콘밸리은행(SVB) 파산 때 하루 만에 20% 넘게 폭락했던 바로 그 섹터입니다.<br><br>
+        <strong>왜 이걸 보냐?</strong><br>
+        금융위기는 항상 JP모건 같은 대형 은행이 아니라, 자산 규모가 작고 규제가 느슨한 <strong>지역은행에서 먼저 터집니다.</strong> KRE 하락은 위기의 '전조'를 잡는 센서 역할을 합니다.
+        <div class="signal-row" style="margin-top:12px">
+          <span class="signal-chip chip-green">상승 → 은행 건전성 안정</span>
+          <span class="signal-chip chip-red">하락 → 위기 선행 신호</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIX -->
+    <div class="guide-card gc-vix">
+      <div class="guide-label"><span style="color:var(--vix)">■</span> FACT 지표 · 주식시장 공포지수</div>
+      <div class="guide-title" style="color:var(--vix)">VIX</div>
+      <div class="guide-body">
+        S&P500 옵션 시장에서 계산되는 변동성 지수입니다.<br>
+        쉽게 말하면 <strong>"투자자들이 앞으로 한 달이 얼마나 무서운지"</strong>를 0~100 사이 숫자로 나타낸 것입니다.<br><br>
+        <table class="vix-table">
+          <tr><td><strong>수준</strong></td><td><strong>시장 분위기</strong></td></tr>
+          <tr><td><span class="hl-kre">15 이하</span></td><td>평온, 낙관</td></tr>
+          <tr><td><span style="color:var(--yield)">15 ~ 20</span></td><td>보통, 경계 시작</td></tr>
+          <tr><td><span class="hl-vix">20 ~ 30</span></td><td>불안, 경계</td></tr>
+          <tr><td><span style="color:var(--sim)">30 이상</span></td><td>공포, 패닉</td></tr>
+        </table><br>
+        현재 구간(24~29)은 <strong>'긴장'과 '공포' 사이</strong>에 위치합니다.
+      </div>
+    </div>
+
+    <!-- 10Y YIELD -->
+    <div class="guide-card gc-yield">
+      <div class="guide-label"><span style="color:var(--yield)">■</span> FACT 지표 · 미국 장기금리</div>
+      <div class="guide-title" style="color:var(--yield)">US 10Y Yield</div>
+      <div class="guide-body">
+        미국 정부가 10년짜리 빚을 빌릴 때 내는 이자율입니다.<br><br>
+        <strong>왜 이게 중요하냐?</strong><br>
+        전 세계 모든 자산의 가격은 이 숫자를 기준점으로 삼습니다. 주식, 부동산, 채권, 심지어 비트코인까지도요.<br><br>
+        금리 상승 → 돈의 값이 비싸진다 → 위험자산에서 자금이 빠져나간다<br>
+        금리 하락 → 돈이 풀린다 → 위험자산으로 자금이 몰린다<br><br>
+        현재 <strong>4.26%</strong>는 2020~2021년(0%대)에 비해 여전히 매우 높은 수준입니다.
+      </div>
+    </div>
+
+    <!-- MOVE -->
+    <div class="guide-card gc-move">
+      <div class="guide-label"><span style="color:var(--move)">■</span> FACT 지표 · 채권시장 공포지수</div>
+      <div class="guide-title" style="color:var(--move)">MOVE</div>
+      <div class="guide-body">
+        VIX가 주식시장의 공포지수라면, MOVE는 <strong>채권시장의 공포지수</strong>입니다.<br>
+        채권 금리가 앞으로 얼마나 요동칠지를 나타냅니다.<br><br>
+        MOVE가 높다 = 채권 투자자들도 방향을 모르겠다 = <strong>시스템 전반이 불안정</strong><br><br>
+        <strong>핵심 신호:</strong><br>
+        VIX와 MOVE가 <strong>동시에 오를 때</strong>가 가장 위험합니다. 주식도, 채권도, 모두 흔들린다는 뜻이기 때문입니다. 이 구간에서 2월 초 MOVE가 112까지 치솟았던 게 바로 그 신호였습니다.
+        <div class="signal-row" style="margin-top:12px">
+          <span class="signal-chip chip-green">100 이하 → 정상</span>
+          <span class="signal-chip chip-red">100 이상 → 채권시장 혼란</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BTC -->
+    <div class="guide-card gc-btc">
+      <div class="guide-label"><span style="color:var(--btc)">■</span> ⚠ 시뮬레이션 · 암호화폐</div>
+      <div class="guide-title" style="color:var(--btc)">Bitcoin (BTC)</div>
+      <div class="guide-body">
+        위기 시나리오에서 BTC가 어떻게 움직이는지 테스트한 <strong>가상 데이터</strong>입니다.<br><br>
+        실제로 BTC는 위기 때 어디로 가야 할지 시장의 합의가 아직 없습니다.<br><br>
+        <strong>위기 초반</strong> → 주식처럼 같이 떨어지는 경향 (위험자산 성격)<br>
+        <strong>위기 장기화</strong> → 금처럼 오르는 경향 (대안자산 성격)<br><br>
+        이 대시보드에서는 BTC가 은행 위기와 얼마나 연동되는지를 테스트하는 용도로 사용합니다.
+        <div class="signal-row" style="margin-top:12px">
+          <span class="signal-chip chip-yellow">⚠ 실제 시장 데이터 아님</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOLD -->
+    <div class="guide-card gc-gold">
+      <div class="guide-label"><span style="color:var(--gold)">■</span> ⚠ 시뮬레이션 · 안전자산</div>
+      <div class="guide-title" style="color:var(--gold)">Gold (금)</div>
+      <div class="guide-body">
+        수천 년의 역사를 가진 전통 안전자산입니다.<br><br>
+        은행이 무너질 것 같을 때 사람들은 본능적으로 금을 삽니다.<br><br>
+        <strong>KRE 하락 + Gold 상승</strong>이 동시에 나타나면 → <em>"지역은행은 위험한데, 돈은 금으로 도망가고 있다"</em>는 신호입니다.<br><br>
+        이 시나리오에서 금 5,000달러대는 2008년형 극단적 위기를 가정한 수치로, 실제 가격과 다릅니다.
+        <div class="signal-row" style="margin-top:12px">
+          <span class="signal-chip chip-yellow">⚠ 실제 시장 데이터 아님</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COINBASE PREMIUM -->
+    <div class="guide-card gc-cp">
+      <div class="guide-label"><span style="color:var(--cp)">■</span> ⚠ 시뮬레이션 · 온체인 지표</div>
+      <div class="guide-title" style="color:var(--cp)">Coinbase Premium</div>
+      <div class="guide-body">
+        같은 BTC인데 미국 거래소 코인베이스의 가격이 해외 거래소보다 비싼지 싼지를 나타냅니다.<br><br>
+        <strong>양수(+)</strong> → 미국 투자자들이 BTC를 사고 있다<br>
+        <strong>음수(−)</strong> → 미국 투자자들이 BTC를 팔고 있다 (위험 회피)<br><br>
+        위기 시 미국 기관들이 BTC를 대규모로 던지면 프리미엄이 급격히 마이너스로 떨어집니다. 큰 마이너스가 지속된다면 미국 자금의 리스크 오프 신호로 해석됩니다.
+        <div class="signal-row" style="margin-top:12px">
+          <span class="signal-chip chip-yellow">⚠ 실제 시장 데이터 아님</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CURVE -->
+    <div class="guide-card gc-curve">
+      <div class="guide-label"><span style="color:#60a5fa">■</span> ⚠ 시뮬레이션 · DeFi 스트레스 지표</div>
+      <div class="guide-title" style="color:#60a5fa">Curve 3Pool USDT %</div>
+      <div class="guide-body">
+        Curve는 스테이블코인끼리 교환하는 DeFi(탈중앙화 금융) 풀입니다.<br>
+        3Pool은 USDT·USDC·DAI 세 가지를 담고 있으며, 정상적으로는 각각 <strong>33%씩</strong> 유지됩니다.<br><br>
+        <strong>이상 신호:</strong><br>
+        USDT 비율이 갑자기 48%로 튀었다 = 누군가 USDT를 집중적으로 팔고 USDC·DAI로 갈아탔다는 뜻입니다.<br><br>
+        스테이블코인 시장에서 특정 코인을 불신하기 시작할 때 나타나는 패턴입니다. 2022년 LUNA 붕괴 때 이런 신호가 먼저 나타났습니다.
+        <div class="signal-row" style="margin-top:12px">
+          <span class="signal-chip chip-green">33% 근방 → 정상</span>
+          <span class="signal-chip chip-red">40% 이상 → 불신 신호</span>
+          <span class="signal-chip chip-yellow">⚠ 시뮬레이션</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 종합 요약 -->
+  <div class="guide-summary">
+    <div class="guide-summary-title">📌 이 대시보드를 한 줄로 요약하면</div>
+    <div class="guide-summary-body">
+      <strong>KRE(은행 건전성)</strong> + <strong>VIX·MOVE(공포 수준)</strong> + <strong>10Y Yield(유동성 비용)</strong>를 한눈에 보면서,<br>
+      <em>"지금 금융시스템이 얼마나 스트레스를 받고 있는가"</em>를 측정하는 대시보드입니다.<br><br>
+      BTC·Gold·Coinbase Premium은 그 위기가 현실화됐을 때 <strong>자금이 어디로 이동하는지</strong>를 추적하는 보조 지표입니다.<br><br>
+      <strong>주의 :</strong> BTC·Gold·CP·Curve 데이터는 2008년형 금융위기 스트레스 시나리오 시뮬레이션으로, 실제 시장 데이터가 아닙니다. KRE·VIX·10Y·MOVE만 실제 팩트 데이터입니다.
+    </div>
+  </div>
+
 </div>
 
 </main>
@@ -1014,6 +1418,13 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
   });
 });
+
+function toggleInfo(id, btn) {
+  const box = document.getElementById(id);
+  const isOpen = box.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.textContent = isOpen ? '▾ 닫기' : '▸ 이게 뭔데?';
+}
 </script>
 
 <div style="padding:12px 24px 20px; border-top:1px solid #132238; margin-top:20px;">
